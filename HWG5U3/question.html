@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Where + be + subject + going?</title>
+  <style>
+    :root{--bg:#f7fbff;--card:#ffffff;--accent:#0b73ff;--muted:#6b7280}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans TC',"Helvetica Neue",Arial;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--bg),#eef6ff)}
+    .container{width:95%;max-width:820px;padding:28px;border-radius:16px;background:var(--card);box-shadow:0 8px 24px rgba(11,115,255,0.08);}
+    h1{margin:0 0 12px;font-size:20px}
+    .sentence{display:flex;gap:12px;align-items:center;font-size:28px;flex-wrap:wrap}
+    .phrase{background:#f1f7ff;padding:10px 14px;border-radius:12px;box-shadow:inset 0 -2px 0 rgba(11,115,255,0.06);}
+    .subject-card{min-width:160px;padding:18px;background:linear-gradient(180deg,#fff,#fbfdff);border-radius:12px;border:2px dashed rgba(11,115,255,0.12);text-align:center;font-size:20px;cursor:pointer;user-select:none}
+    .subject-card small{display:block;color:var(--muted);font-size:12px;margin-top:6px}
+    .be-box{min-width:90px;padding:14px 18px;border-radius:10px;border:2px solid rgba(99,102,241,0.08);background:linear-gradient(180deg,#fff,#fafcff);text-align:center;cursor:pointer;user-select:none}
+    .be-box.revealed{background:#0b73ff;color:#fff;border-color:rgba(11,115,255,0.12);box-shadow:0 6px 18px rgba(11,115,255,0.12)}
+    .controls{margin-top:18px;display:flex;gap:10px;align-items:center}
+    button{padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+    .hint{color:var(--muted);font-size:13px;margin-left:auto}
+    footer{margin-top:16px;color:var(--muted);font-size:13px}
+    @media (max-width:520px){.sentence{font-size:20px}.subject-card{min-width:140px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>練習句型：Where + be + subject + going?</h1>
+
+    <div class="sentence" aria-live="polite">
+      <div class="phrase">Where</div>
+
+      <div id="beBox" class="be-box" role="button" tabindex="0" aria-pressed="false" title="點選顯示正確的 be 動詞">_____</div>
+
+      <div id="subjectCard" class="subject-card" role="button" tabindex="0" title="點選換一個人稱">I
+        <small>點我換人稱</small>
+      </div>
+
+      <div class="phrase">going?</div>
+    </div>
+
+    <div class="controls">
+      <button id="newSubject">下一個人稱</button>
+      <button id="revealBe">顯示 be 動詞</button>
+      <button id="reset">重設</button>
+      <div class="hint">提示：先換人稱再點選方框以查看對應的 be 動詞</div>
+    </div>
+
+    <footer>用法說明：每點一次「下一個人稱」或直接點主詞區，主詞會隨機改變。點選方框或「顯示 be 動詞」會揭露對應的 be 動詞（am / are / is）。</footer>
+  </div>
+
+  <script>
+    (function(){
+      const subjects = [
+        'I','you','he','she','we','they',
+        'John','Mary','David','Emily','Kevin','Sophie','Daniel','Lily','Michael','Olivia','Jason','Hannah','William','Grace and Andrew','Chloe','the teacher','the students','my sisters','the cats','the dog'
+      ];
+
+      const pluralKeywords = ['You','We','They','The children','The students','My friends'];
+
+      const beBox = document.getElementById('beBox');
+      const subjectCard = document.getElementById('subjectCard');
+      const newBtn = document.getElementById('newSubject');
+      const revealBtn = document.getElementById('revealBe');
+      const resetBtn = document.getElementById('reset');
+
+      let currentSubject = 'I';
+      let beRevealed = false;
+
+      function pickRandom(){
+        const idx = Math.floor(Math.random()*subjects.length);
+        return subjects[idx];
+      }
+
+      function determineBe(subject){
+        // Normalize
+        if(subject === 'I') return 'am';
+        if(pluralKeywords.includes(subject)) return 'are';
+        // if subject is a pronoun 'You' 'We' 'They'
+        const lower = subject.toLowerCase();
+        if(lower === 'you' || lower === 'we' || lower === 'they') return 'are';
+        if(lower === 'he' || lower === 'she' || lower === 'it') return 'is';
+        // If subject is plural (very naive): contains 'children' or ends with 's' (but names like 'Charles' would be singular)
+        if(/children|people|students|friends/i.test(subject)) return 'are';
+        // default: singular name/noun -> is
+        return 'is';
+      }
+
+      function renderSubject(subj){
+        currentSubject = subj;
+        subjectCard.firstChild.textContent = subj; // keep small element intact
+        // reset be box when subject changes
+        beRevealed = false;
+        beBox.classList.remove('revealed');
+        beBox.textContent = '_____';
+        beBox.setAttribute('aria-pressed','false');
+      }
+
+      function revealBe(){
+        const verb = determineBe(currentSubject);
+        beBox.textContent = verb;
+        beBox.classList.add('revealed');
+        beBox.setAttribute('aria-pressed','true');
+        beRevealed = true;
+      }
+
+      // Initial render
+      renderSubject('I');
+
+      // Event handlers
+      newBtn.addEventListener('click',()=> renderSubject(pickRandom()));
+      subjectCard.addEventListener('click',()=> renderSubject(pickRandom()));
+      subjectCard.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); renderSubject(pickRandom()); }});
+
+      revealBtn.addEventListener('click',()=> revealBe());
+      beBox.addEventListener('click',()=> revealBe());
+      beBox.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); revealBe(); }});
+
+      resetBtn.addEventListener('click',()=>{ renderSubject('I'); });
+
+      // For accessibility: announce the full sentence when things change
+      const liveRegion = document.createElement('div');
+      liveRegion.setAttribute('aria-live','polite');
+      liveRegion.style.position='absolute';
+      liveRegion.style.left='-9999px';
+      document.body.appendChild(liveRegion);
+
+      function announce(){
+        const verb = beRevealed ? determineBe(currentSubject) : 'blank';
+        liveRegion.textContent = `Where ${verb} ${currentSubject} going?`;
+      }
+
+      // update announcement on changes
+      const observer = new MutationObserver(announce);
+      observer.observe(beBox,{childList:true,characterData:true,subtree:true});
+      observer.observe(subjectCard,{childList:true,characterData:true,subtree:true});
+
+    })();
+  </script>
+</body>
+</html>

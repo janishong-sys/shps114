@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where...going? 問答練習</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* 圖片容器樣式 */
+        #image-container {
+            min-height: 250px;
+            margin-bottom: 20px;
+        }
+
+        /* 圖片樣式 */
+        #random-image {
+            max-width: 90%;
+            height: auto;
+            border: 1px solid #ccc;
+            padding: 5px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* 按鈕樣式 */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #ffc107; 
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #e0a800;
+        }
+
+        /* 句型容器樣式 */
+        #qa-container {
+            font-size: 26px;
+            margin-top: 30px;
+            line-height: 2.5; 
+        }
+
+        /* 問句 (Q) 和答句 (A) 的容器 */
+        .question, .answer {
+            font-weight: bold;
+            margin: 10px 0;
+            min-height: 35px;
+        }
+
+        /* Be 動詞方框樣式 */
+        .be-verb-box {
+            display: inline-block;
+            min-width: 50px;
+            height: 30px;
+            line-height: 30px;
+            border: 2px solid #333;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            text-align: center;
+            color: transparent; 
+            user-select: none;
+            padding: 0 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+
+        /* 點擊後顯示文字的樣式 */
+        .be-verb-box.revealed {
+            color: #333;
+            background-color: #e6ffe6;
+            border-color: #28a745;
+        }
+        
+        /* 答句的方框/點擊區塊 */
+        #answer-box {
+            display: inline-block;
+            width: 80%;
+            height: 40px;
+            line-height: 40px;
+            border: 2px dashed #007bff; 
+            background-color: #f8f9fa;
+            cursor: pointer;
+            text-align: center;
+            color: transparent; 
+            user-select: none;
+            transition: all 0.3s;
+            font-size: 20px;
+        }
+        
+        #answer-box.revealed {
+            color: #333;
+            background-color: #d1ecf1; 
+            border-style: solid;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Where...going? 問答練習</h1>
+
+    <button onclick="displayRandomContent()">點擊顯示新的問答</button>
+
+    <div id="image-container">
+        </div>
+
+    <div id="qa-container">
+        </div>
+
+    <script>
+        // 圖片檔案名和對應的英文單字/地點
+        const images = [
+            { fileName: "p44_1.jpg", word: "bank" },
+            { fileName: "p44_2.jpg", word: "bookstore" },
+            { fileName: "p44_3.jpg", word: "hospital" },
+            { fileName: "p44_4.jpg", word: "library" },
+            { fileName: "p44_5.jpg", word: "museum" },
+            { fileName: "p44_6.jpg", word: "park" },
+            { fileName: "p44_7.jpg", word: "post office" },
+            { fileName: "p44_8.jpg", word: "supermarket" }
+        ];
+
+        // 依使用者要求的大小寫的主詞列表
+        const subjects = [
+            "you", "he", "she", "we", "they", "John", "Mary", "the student", 
+            "Rocky and Mia", "your sister", "my brother", "Lily", "Michael"
+        ];
+
+        /**
+         * 根據問句主詞判斷正確的 Be 動詞和答句代名詞
+         * @param {string} subject - 問句主詞 (可能是小寫)
+         * @returns {object} - 包含 beVerb (is/are) 和 pronoun (I/We/He/She/...) (答句開頭，已大寫)
+         */
+        function getGrammarInfo(subject) {
+            let beVerb, pronoun;
+
+            // 處理 I/you/we/they
+            if (subject === "you") {
+                beVerb = "are";
+                pronoun = "I"; // 回答時 you 變 I
+            } else if (subject === "we" || subject === "they") {
+                beVerb = "are";
+                // 答句的首字母需大寫
+                pronoun = subject.charAt(0).toUpperCase() + subject.slice(1); 
+            }
+            // 處理 he/she/單數名詞
+            else if (["he", "she", "John", "Mary", "the student", "your sister", "my brother", "Lily", "Michael"].includes(subject)) {
+                beVerb = "is";
+                if (subject === "he" || subject === "John" || subject === "my brother" || subject === "Michael") {
+                    pronoun = "He";
+                } else if (subject === "she" || subject === "Mary" || subject === "your sister" || subject === "Lily") {
+                    pronoun = "She";
+                } else { // the student
+                    pronoun = "The student"; 
+                }
+            } 
+            // 處理 Rocky and Mia (複數名詞)
+            else if (subject.includes(' and ')) {
+                beVerb = "are";
+                pronoun = "They";
+            } else {
+                beVerb = "is"; // 預設單數
+                pronoun = "He/She";
+            }
+
+            return { beVerb, pronoun };
+        }
+
+        // 隨機選擇主詞
+        function getRandomSubject() {
+            const randomIndex = Math.floor(Math.random() * subjects.length);
+            return subjects[randomIndex];
+        }
+
+        // 隨機選擇圖片和單字
+        function getRandomImage() {
+            const randomIndex = Math.floor(Math.random() * images.length);
+            return images[randomIndex];
+        }
+
+        // 顯示隨機內容
+        function displayRandomContent() {
+            const selectedImage = getRandomImage();
+            const selectedSubject = getRandomSubject();
+            const grammar = getGrammarInfo(selectedSubject);
+            
+            const beVerb = grammar.beVerb;
+            const pronoun = grammar.pronoun; // 答句主詞（已處理大小寫）
+            const location = selectedImage.word;
+
+            // 顯示圖片
+            const imageContainer = document.getElementById('image-container');
+            imageContainer.innerHTML = `<img id="random-image" src="${selectedImage.fileName}" alt="Location Image">`;
+            
+            const qaContainer = document.getElementById('qa-container');
+            
+            // --- 第一行：問句 ---
+            
+            // 問句主詞處理：確保在問句中，句首字母大寫，以符合標準英文問句格式
+            const displaySubject = selectedSubject.charAt(0).toUpperCase() + selectedSubject.slice(1);
+            
+            // Be 動詞方框 HTML
+            const beVerbBoxHtml = `<span class="be-verb-box" 
+                                        data-word="${beVerb}" 
+                                        onclick="revealAnswer(this)">
+                                        ${beVerb}
+                                    </span>`;
+            
+            // 完整問句
+            // Question: Where are/is Subject going?
+            const questionText = `Where ${beVerbBoxHtml} ${displaySubject} going?`;
+
+            // --- 第二行：答句 ---
+            
+            // 構造正確的答案文本
+            let answerBeVerb;
+            
+            // 調整答句的 be 動詞 (基於 pronoun)
+            if (pronoun === "I") {
+                answerBeVerb = "am";
+            } else if (pronoun === "He" || pronoun === "She" || pronoun === "The student") {
+                answerBeVerb = "is";
+            } else { // We, They
+                answerBeVerb = "are";
+            }
+            
+            // 最終的答案文本
+            // Answer: Subject beVerb going to the location.
+            const correctAnswer = `${pronoun} ${answerBeVerb} going to the ${location}.`;
+
+
+            // 答句方框 HTML
+            const answerBoxHtml = `<span id="answer-box" 
+                                       data-word="${correctAnswer}" 
+                                       onclick="revealAnswer(this)">
+                                       點擊這裡顯示答案
+                                   </span>`;
+
+            // 組合問答兩行
+            qaContainer.innerHTML = `
+                <div class="question">Q: ${questionText}</div>
+                <div class="answer">A: ${answerBoxHtml}</div>
+            `;
+        }
+
+        /**
+         * 點擊方框顯示答案
+         * @param {HTMLElement} element - 被點擊的方框元素
+         */
+        function revealAnswer(element) {
+            // 檢查是否已經顯示
+            if (!element.classList.contains('revealed')) {
+                // 獲取儲存的答案
+                const answer = element.getAttribute('data-word');
+                // 設置文字內容
+                element.textContent = answer;
+                // 添加 revealed class 來改變樣式
+                element.classList.add('revealed');
+            }
+        }
+
+        // 頁面載入時先初始化顯示一次
+        window.onload = displayRandomContent; 
+    </script>
+
+</body>
+</html>
