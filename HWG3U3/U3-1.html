@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖片問答遊戲</title>
+    <style>
+        /* 頁面整體樣式 */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* 圖片容器樣式 */
+        #image-container {
+            width: 300px; /* 設置圖片顯示區域大小 */
+            height: 300px;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer; /* 鼠標懸停時顯示為可點擊 */
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 圖片樣式 */
+        #quiz-image {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+
+        /* 文字區域樣式 */
+        #text-area {
+            font-size: 1.5em;
+            text-align: center;
+            line-height: 2;
+        }
+
+        /* 答案空格樣式 */
+        #answer-blank {
+            display: inline-block;
+            min-width: 100px; /* 確保空格足夠寬 */
+            padding: 0 5px;
+            border-bottom: 2px solid black;
+            cursor: pointer; /* 鼠標懸停時顯示為可點擊 */
+            color: transparent; /* 預設文字透明，只顯示下劃線 */
+            transition: color 0.3s;
+            font-weight: bold;
+        }
+
+        /* 顯示答案時的樣式 */
+        .revealed {
+            color: black !important; /* 點擊後顯示黑色文字 */
+            border-bottom-color: transparent !important; /* 點擊後隱藏下劃線 */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="image-container" onclick="showRandomImage()">
+        <img id="quiz-image" src="" alt="隨機圖片">
+    </div>
+
+    <div id="text-area">
+        <div id="question-text"></div>
+        <div id="answer-text">
+            They're <span id="answer-blank" onclick="revealAnswer()">______</span>.
+        </div>
+    </div>
+
+    <script>
+        // 圖片檔案與對應答案的資料結構
+        const images = [
+            { file: 'p46_1.jpg', answer: 'apples', type: 'fruit' },
+            { file: 'p46_2.jpg', answer: 'bananas', type: 'fruit' },
+            { file: 'p46_3.jpg', answer: 'oranges', type: 'fruit' },
+            { file: 'p46_4.jpg', answer: 'watermelons', type: 'fruit' },
+            { file: 'p46_5.jpg', answer: 'burgers', type: 'food' },
+            { file: 'p46_6.jpg', answer: 'hot dogs', type: 'food' },
+            { file: 'p46_7.jpg', answer: 'sandwiches', type: 'food' }
+        ];
+
+        // 問題句子的選項
+        const questions = [
+            "What are these?",
+            "What are those?"
+        ];
+
+        let currentImageIndex = -1; // 追蹤當前圖片索引
+
+        /**
+         * 隨機選擇一張圖片並更新顯示
+         */
+        function showRandomImage() {
+            // 隨機選擇一個圖片索引
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * images.length);
+            } while (newIndex === currentImageIndex); // 避免與前一張圖片重複
+            
+            currentImageIndex = newIndex;
+            const currentItem = images[currentImageIndex];
+
+            // 1. 更新圖片
+            document.getElementById('quiz-image').src = currentItem.file;
+
+            // 2. 隨機更新問句
+            const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+            document.getElementById('question-text').textContent = randomQuestion;
+
+            // 3. 重置答案空格
+            const answerBlank = document.getElementById('answer-blank');
+            answerBlank.textContent = currentItem.answer; // 將答案文字設置進去
+            answerBlank.classList.remove('revealed');    // 移除顯示答案的樣式
+            answerBlank.style.minWidth = (currentItem.answer.length * 15) + 'px'; // 根據答案長度調整空格寬度
+        }
+
+        /**
+         * 點擊空格後顯示答案
+         */
+        function revealAnswer() {
+            document.getElementById('answer-blank').classList.add('revealed');
+        }
+
+        // 頁面加載完成後，立即顯示第一張隨機圖片
+        window.onload = showRandomImage;
+    </script>
+
+</body>
+</html>
