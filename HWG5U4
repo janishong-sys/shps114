@@ -1,1 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機圖片顯示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #imageContainer {
+            margin: 20px;
+            border: 2px solid #ccc;
+            padding: 10px;
+            background-color: white;
+            min-width: 300px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #randomImage {
+            max-width: 100%;
+            max-height: 100%;
+            display: none; /* 初始隱藏 */
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .placeholder-text {
+            font-size: 20px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
 
+    <h1>動物圖片隨機顯示器</h1>
+
+    <button onclick="displayRandomImage()">點擊我隨機顯示圖片</button>
+
+    <div id="imageContainer">
+        <p id="placeholder" class="placeholder-text">點擊按鈕顯示圖片</p>
+        <img id="randomImage" alt="隨機顯示的動物圖片">
+    </div>
+
+    <script>
+        // 圖片檔案名稱陣列
+        const imageFiles = [
+            "p58_10.jpg",
+            "p58_3.jpg",
+            "p58_1.jpg",
+            "p58_5.jpg",
+            "p58_2.jpg",
+            "p58_6.jpg",
+            "p58_4.jpg",
+            "p58_7.jpg",
+            "p58_9.jpg",
+            "p58_8.jpg"
+        ];
+
+        function displayRandomImage() {
+            // 1. 產生一個隨機索引
+            const randomIndex = Math.floor(Math.random() * imageFiles.length);
+            
+            // 2. 獲取隨機選擇的圖片檔案名稱
+            const selectedImage = imageFiles[randomIndex];
+            
+            // 3. 設置圖片元素的 src 屬性
+            const imageElement = document.getElementById('randomImage');
+            imageElement.src = selectedImage;
+            
+            // 4. 顯示圖片並隱藏佔位符
+            imageElement.style.display = 'block';
+            document.getElementById('placeholder').style.display = 'none';
+
+            console.log("顯示圖片: " + selectedImage);
+        }
+    </script>
+
+</body>
+</html>
