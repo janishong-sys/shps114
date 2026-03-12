@@ -1,1 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機句子練習</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        h2 { color: #2c3e50; margin-bottom: 2rem; }
+        #display-area {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #34495e;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            padding: 1rem;
+        }
+        button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button:hover { background-color: #2ecc71; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        #status { margin-top: 1rem; color: #7f8c8d; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
 
+<div class="card">
+    <h2>句子隨機抽卡</h2>
+    <div id="display-area">準備好了嗎？</div>
+    <button id="next-btn" onclick="getNext()">抽取句子</button>
+    <div id="status">剩餘數量: <span id="count">-</span></div>
+</div>
+
+<script>
+    // 您提供的句子清單
+    const originalList = [
+        "It’s ten o’clock. Let’s take this bus.",
+        "Hurry up!",
+        "Sorry, I’m late.",
+        "Look! That’s Big Ben.",
+        "It’s ten thirty.",
+        "Wow! Amazing! Let’s go.",
+        "OK.",
+        "Here we go!",
+        "What time is it?",
+        "Shh .... It’s eleven forty.",
+        "Mia, I’m so hungry. What time is it?",
+        "Not now, Abu!",
+        "It’s eleven fifty. Time for lunch.",
+        "Do you want some fish?",
+        "Yes, please.",
+        "Oh, no! We’re back.",
+        "Now we’re really hungry!"
+    ];
+
+    let currentList = [];
+
+    // 洗牌演算法 (Shuffle)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // 初始化
+    function init() {
+        currentList = shuffleArray([...originalList]);
+        document.getElementById('count').innerText = currentList.length;
+    }
+
+    function getNext() {
+        const display = document.getElementById('display-area');
+        const btn = document.getElementById('next-btn');
+        const countSpan = document.getElementById('count');
+
+        if (currentList.length > 0) {
+            // 從陣列中取出最後一個元素
+            const sentence = currentList.pop();
+            display.innerText = sentence;
+            countSpan.innerText = currentList.length;
+
+            if (currentList.length === 0) {
+                btn.innerText = "重新開始";
+                btn.onclick = () => location.reload(); 
+                btn.style.backgroundColor = "#3498db";
+            }
+        }
+    }
+
+    init();
+</script>
+
+</body>
+</html>
