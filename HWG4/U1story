@@ -1,128 +1,118 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>隨機句子練習</title>
+    <title>隨機句子產生器</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            font-family: Arial, sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
             margin: 0;
+            background-color: #f4f4f9;
         }
-        .card {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-        }
-        h2 { color: #2c3e50; margin-bottom: 2rem; }
-        #display-area {
-            font-size: 1.8rem;
+        #sentence-display {
+            font-size: 2rem;
             font-weight: bold;
-            color: #34495e;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px dashed #bdc3c7;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
             border-radius: 10px;
-            margin-bottom: 2rem;
-            padding: 1rem;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 3rem;
+            width: 80%;
         }
         button {
-            background-color: #27ae60;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background-color: #007bff;
             color: white;
             border: none;
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            transition: background 0.3s;
         }
-        button:hover { background-color: #2ecc71; transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
-        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-        #status { margin-top: 1rem; color: #7f8c8d; font-size: 0.9rem; }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #counter {
+            margin-top: 15px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>句子隨機抽卡</h2>
-    <div id="display-area">準備好了嗎？</div>
-    <button id="next-btn" onclick="getNext()">抽取句子</button>
-    <div id="status">剩餘數量: <span id="count">-</span></div>
-</div>
+    <div id="sentence-display">點擊下方按鈕開始</div>
+    <button onclick="showNextSentence()">下一個句子</button>
+    <div id="counter">剩餘句子: <span id="count-num">0</span></div>
 
-<script>
-    // 您提供的句子清單
-    const originalList = [
-        "It’s ten o’clock. Let’s take this bus.",
-        "Hurry up!",
-        "Sorry, I’m late.",
-        "Look! That’s Big Ben.",
-        "It’s ten thirty.",
-        "Wow! Amazing! Let’s go.",
-        "OK.",
-        "Here we go!",
-        "What time is it?",
-        "Shh .... It’s eleven forty.",
-        "Mia, I’m so hungry. What time is it?",
-        "Not now, Abu!",
-        "It’s eleven fifty. Time for lunch.",
-        "Do you want some fish?",
-        "Yes, please.",
-        "Oh, no! We’re back.",
-        "Now we’re really hungry!"
-    ];
+    <script>
+        // 原始句子清單
+        const originalSentences = [
+            "It’s ten o’clock. Let’s take this bus.",
+            "Hurry up!",
+            "Sorry, I’m late.",
+            "Look! That’s Big Ben.",
+            "It’s ten thirty.",
+            "Wow! Amazing! Let’s go.",
+            "OK.",
+            "Here we go!",
+            "What time is it?",
+            "Shh .... It’s eleven forty.",
+            "Mia, I’m so hungry. What time is it?",
+            "Not now, Abu!",
+            "It’s eleven fifty. Time for lunch.",
+            "Do you want some fish?",
+            "Yes, please.",
+            "Oh, no! We’re back.",
+            "Now we’re really hungry!"
+        ];
 
-    let currentList = [];
+        let sentences = [];
 
-    // 洗牌演算法 (Shuffle)
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    // 初始化
-    function init() {
-        currentList = shuffleArray([...originalList]);
-        document.getElementById('count').innerText = currentList.length;
-    }
-
-    function getNext() {
-        const display = document.getElementById('display-area');
-        const btn = document.getElementById('next-btn');
-        const countSpan = document.getElementById('count');
-
-        if (currentList.length > 0) {
-            // 從陣列中取出最後一個元素
-            const sentence = currentList.pop();
-            display.innerText = sentence;
-            countSpan.innerText = currentList.length;
-
-            if (currentList.length === 0) {
-                btn.innerText = "重新開始";
-                btn.onclick = () => location.reload(); 
-                btn.style.backgroundColor = "#3498db";
+        // 洗牌演算法 (Fisher-Yates Shuffle)
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
+            return array;
         }
-    }
 
-    init();
-</script>
+        function resetSentences() {
+            sentences = shuffle([...originalSentences]);
+            updateCounter();
+        }
 
+        function updateCounter() {
+            document.getElementById('count-num').innerText = sentences.length;
+        }
+
+        function showNextSentence() {
+            if (sentences.length === 0) {
+                if (confirm("所有句子都出現過了！要重新開始嗎？")) {
+                    resetSentences();
+                    showNextSentence();
+                } else {
+                    document.getElementById('sentence-display').innerText = "結束了！";
+                    return;
+                }
+            }
+
+            const next = sentences.pop();
+            document.getElementById('sentence-display').innerText = next;
+            updateCounter();
+        }
+
+        // 初始化
+        resetSentences();
+    </script>
 </body>
 </html>
