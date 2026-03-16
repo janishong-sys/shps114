@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機句子產生器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        #sentence-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 3rem;
+            width: 80%;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #counter {
+            margin-top: 15px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sentence-display">點擊下方按鈕開始</div>
+    <button onclick="showNextSentence()">下一個句子</button>
+    <div id="counter">剩餘句子: <span id="count-num">0</span></div>
+
+    <script>
+        // 原始句子清單
+        const originalSentences = [
+            "It’s ten o’clock. Let’s take this bus.",
+            "Hurry up!",
+            "Sorry, I’m late.",
+            "Look! That’s Big Ben.",
+            "It’s ten thirty.",
+            "Wow! Amazing! Let’s go.",
+            "OK.",
+            "Here we go!",
+            "What time is it?",
+            "Shh .... It’s eleven forty.",
+            "Mia, I’m so hungry. What time is it?",
+            "Not now, Abu!",
+            "It’s eleven fifty. Time for lunch.",
+            "Do you want some fish?",
+            "Yes, please.",
+            "Oh, no! We’re back.",
+            "Now we’re really hungry!"
+        ];
+
+        let sentences = [];
+
+        // 洗牌演算法 (Fisher-Yates Shuffle)
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function resetSentences() {
+            sentences = shuffle([...originalSentences]);
+            updateCounter();
+        }
+
+        function updateCounter() {
+            document.getElementById('count-num').innerText = sentences.length;
+        }
+
+        function showNextSentence() {
+            if (sentences.length === 0) {
+                if (confirm("所有句子都出現過了！要重新開始嗎？")) {
+                    resetSentences();
+                    showNextSentence();
+                } else {
+                    document.getElementById('sentence-display').innerText = "結束了！";
+                    return;
+                }
+            }
+
+            const next = sentences.pop();
+            document.getElementById('sentence-display').innerText = next;
+            updateCounter();
+        }
+
+        // 初始化
+        resetSentences();
+    </script>
+</body>
+</html>
