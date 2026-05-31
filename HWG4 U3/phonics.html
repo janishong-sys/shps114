@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phonics 單字練習</title>
+    <!-- 引入 Tailwind CSS 進行版面美化 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 文字彈跳與淡入動畫效果 */
+        .pop-in {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-teal-50 min-h-screen flex items-center justify-center p-4 font-sans text-gray-800">
+
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-teal-100">
+        
+        <!-- 頂部標題區 -->
+        <div class="bg-teal-500 text-white text-center py-5 px-6 shadow-sm">
+            <h1 class="text-2xl font-black tracking-wider">單字快閃練習</h1>
+            <p class="text-teal-100 text-sm mt-1 font-medium">唸出畫面上的單字吧！</p>
+        </div>
+
+        <div class="p-8 flex flex-col items-center">
+            
+            <!-- 單字顯示區塊 -->
+            <div class="w-full h-48 bg-teal-50 rounded-2xl flex items-center justify-center border-2 border-teal-100 mb-8 shadow-inner relative overflow-hidden">
+                <!-- 裝飾用背景圈圈 -->
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-teal-200 rounded-full opacity-20"></div>
+                <div class="absolute -bottom-10 -left-10 w-24 h-24 bg-teal-300 rounded-full opacity-20"></div>
+                
+                <p id="wordDisplay" class="text-6xl md:text-7xl font-extrabold text-teal-800 tracking-wide z-10 select-none">
+                    Word
+                </p>
+            </div>
+
+            <!-- 操作按鈕區 -->
+            <button onclick="generateWord()" class="w-full bg-teal-500 hover:bg-teal-600 active:bg-teal-700 text-white font-bold py-4 px-6 rounded-2xl transition duration-200 shadow-[0_8px_0_0_#0f766e] hover:shadow-[0_6px_0_0_#0f766e] hover:translate-y-[2px] active:shadow-[0_0px_0_0_#0f766e] active:translate-y-[8px] text-xl flex items-center justify-center gap-2">
+                <span>下一個單字</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+            </button>
+            
+            <p class="mt-6 text-gray-400 text-sm font-medium">總共 16 個單字隨機出現</p>
+        </div>
+    </div>
+
+    <script>
+        // 定義所有的單字陣列 (O 的短母音 vs 長母音)
+        const wordList = [
+            'not', 'note', 
+            'hop', 'hope', 
+            'cod', 'code', 
+            'rob', 'robe', 
+            'mop', 'mope', 
+            'dot', 'dote', 
+            'cop', 'cope', 
+            'nod', 'node'
+        ];
+
+        // 記錄前一次出現的單字，避免連續出現同一個
+        let previousWord = "";
+
+        // 隨機產生單字的函式
+        function generateWord() {
+            let randomIndex;
+            let selectedWord;
+
+            // 確保不會連續出現同一個單字
+            do {
+                randomIndex = Math.floor(Math.random() * wordList.length);
+                selectedWord = wordList[randomIndex];
+            } while (selectedWord === previousWord && wordList.length > 1);
+
+            previousWord = selectedWord;
+
+            // 更新畫面上的單字
+            const displayElement = document.getElementById('wordDisplay');
+            displayElement.textContent = selectedWord;
+
+            // 重新觸發彈跳動畫
+            displayElement.classList.remove('pop-in');
+            void displayElement.offsetWidth; // 觸發重繪 (Reflow)
+            displayElement.classList.add('pop-in');
+        }
+
+        // 當網頁載入完成後，自動產生第一個單字
+        window.onload = generateWord;
+    </script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文所有格與單複數指示代名詞練習</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .main-container {
+            display: flex;
+            width: 85%;
+            max-width: 900px;
+            height: 450px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        
+        /* 左側：列佈局，包含物品和指示 */
+        .left-side {
+            flex: 1.2; /* 物品欄稍大一點 */
+            display: flex;
+            flex-direction: column;
+            border-right: 2px dashed #ddd;
+            background-color: #fafafa;
+        }
+        
+        /* 左上：物品欄 */
+        .left-top {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee; /* 分隔線 */
+        }
+        
+        /* 左下：指示欄 */
+        .left-bottom {
+            flex: 0.8; /* 指示圖片稍小 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            background-color: #fdfdfd;
+        }
+        
+        .left-side img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        /* 右欄：所有者單字 */
+        .right-side {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        /* 控制按鈕 */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        #btn-generate {
+            background-color: #3498db;
+            color: white;
+        }
+        #btn-generate:hover { background-color: #2980b9; }
+        
+        #btn-answer {
+            background-color: #e67e22; /* 換個顏色 */
+            color: white;
+        }
+        #btn-answer:hover { background-color: #d35400; }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        /* 答案顯示區 */
+        #result-box {
+            min-height: 80px;
+            padding: 20px 30px;
+            background-color: #fff3cd;
+            border: 2px solid #ffeeba;
+            border-radius: 8px;
+            color: #856404;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden; /* 預設隱藏 */
+            text-align: center;
+        }
+        
+        #result-box p {
+            margin: 5px 0;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        #result-box p.question {
+            color: #2c3e50; /* 問句顏色 */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>英文所有格與指示代名詞問答練習</h1>
+
+    <div class="main-container">
+        <div class="left-side">
+            <div class="left-top">
+                <img id="item-image" src="" alt="Item Image">
+            </div>
+            <div class="left-bottom">
+                <img id="distance-image" src="" alt="Distance Image">
+            </div>
+        </div>
+        <div class="right-side">
+            <span id="owner-text"></span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="btn-generate" onclick="generateQuestion()">隨機產生下一題</button>
+        <button id="btn-answer" onclick="showAnswer()">顯示正確問答</button>
+    </div>
+
+    <div id="result-box">
+        <p id="answer-question" class="question"></p>
+        <p id="answer-sentence"></p>
+    </div>
+
+    <script>
+        // 物品陣列：與之前相同，加上單複數標記
+        const items = [
+            { src: 'p58_1.jpg', name: 'backpack', isPlural: false },
+            { src: 'p58_2.jpg', name: 'cap', isPlural: false },
+            { src: 'p58_3.jpg', name: 'lunchbox', isPlural: false },
+            { src: 'p58_4.jpg', name: 'umbrella', isPlural: false },
+            { src: 'p59_1.jpg', name: 'water bottle', isPlural: false },
+            { src: 'p59_2.jpg', name: 'workbook', isPlural: false },
+            { src: 'p59_3.jpg', name: 'glasses', isPlural: true }, // 複數
+            { src: 'p59_4.jpg', name: 'shoes', isPlural: true }    // 複數
+        ];
+
+        // 距離/指示陣列：新的資料結構
+        const distances = [
+            { src: 'far.png', singular: 'that', plural: 'those' }, // 指向遠方
+            { src: 'near.png', singular: 'this', plural: 'these' }  // 手在上方指向近方
+        ];
+
+        // 人物/所有格代名詞陣列
+        const owners = ["my", "his", "her", "your", "Chuck", "Tom", "Lily", "Jenny", "Peter", "my sister", "your brother"];
+        
+        // 不需要加 's 的代名詞
+        const pronouns = ["my", "his", "her", "your"];
+
+        let currentItem = null;
+        let currentDistance = null;
+        let currentOwner = "";
+
+        // 隨機抽取所有項目
+        function generateQuestion() {
+            // 隨機選擇三個項目
+            currentItem = items[Math.floor(Math.random() * items.length)];
+            currentDistance = distances[Math.floor(Math.random() * distances.length)];
+            currentOwner = owners[Math.floor(Math.random() * owners.length)];
+
+            // 更新畫面圖片和文字
+            document.getElementById('item-image').src = currentItem.src;
+            document.getElementById('distance-image').src = currentDistance.src;
+            document.getElementById('owner-text').textContent = currentOwner;
+            
+            // 隱藏並清空上一次的答案
+            const resultBox = document.getElementById('result-box');
+            resultBox.style.visibility = 'hidden';
+            document.getElementById('answer-question').textContent = "";
+            document.getElementById('answer-sentence').textContent = "";
+        }
+
+        // 計算並顯示完整的問句和答句
+        function showAnswer() {
+            if (!currentItem || !currentDistance || !currentOwner) return;
+
+            // 處理所有格 's
+            let possessive = currentOwner;
+            if (!pronouns.includes(currentOwner)) {
+                possessive += "'s";
+            }
+
+            let question = "";
+            let answer = "";
+            
+            // 判斷單複數來決定 be 動詞和指示代名詞
+            if (currentItem.isPlural) {
+                // 複數物品 (glasses, shoes)
+                let demonstrative = currentDistance.plural; // these 或 those
+                question = `Whose ${currentItem.name} are ${demonstrative}?`;
+                answer = `They're ${possessive} ${currentItem.name}.`;
+            } else {
+                // 單數物品
+                let demonstrative = currentDistance.singular; // this 或 that
+                question = `Whose ${currentItem.name} is ${demonstrative}?`;
+                answer = `It's ${possessive} ${currentItem.name}.`;
+            }
+
+            // 顯示問句和答句
+            document.getElementById('answer-question').textContent = question;
+            document.getElementById('answer-sentence').textContent = answer;
+            document.getElementById('result-box').style.visibility = 'visible';
+        }
+
+        // 網頁載入後自動產生第一題
+        window.onload = generateQuestion;
+    </script>
+
+</body>
+</html>

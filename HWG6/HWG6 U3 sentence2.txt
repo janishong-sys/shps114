@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英語句型練習 (Yes/No)</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .container {
+            background-color: #fff;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .images-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            margin-top: 20px;
+        }
+        .img-box {
+            text-align: center;
+        }
+        .img-box img {
+            width: 250px;
+            height: 250px;
+            object-fit: contain;
+            border: 3px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #fafafa;
+        }
+        .question {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2980b9;
+            margin: 30px 0;
+            letter-spacing: 1px;
+        }
+        .answer {
+            font-size: 36px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 30px 0;
+            opacity: 0; /* 預設隱藏 */
+            transition: opacity 0.3s ease;
+        }
+        .answer.show {
+            opacity: 1;
+        }
+        .btn-group {
+            margin-top: 20px;
+        }
+        .btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #2ecc71;
+        }
+        .btn-secondary {
+            background-color: #f39c12;
+        }
+        .btn-secondary:hover {
+            background-color: #f1c40f;
+        }
+        /* 讓問句中的食物單字特別標示，方便學生閱讀 */
+        .highlight-food {
+            color: #8e44ad;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>句型練習：Would you like...?</h1>
+    
+    <div class="images-wrapper">
+        <div class="img-box">
+            <img id="mealImage" src="" alt="Meal Time">
+        </div>

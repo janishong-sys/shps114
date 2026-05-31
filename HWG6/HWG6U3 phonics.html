@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch & Sh 發音單字練習</title>
+    <!-- 引入 Tailwind CSS 進行版面美化 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 文字放大並淡入的動畫效果 */
+        .zoom-in {
+            animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes zoomIn {
+            0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-orange-50 min-h-screen flex items-center justify-center p-4 font-sans text-gray-800">
+
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-orange-100">
+        
+        <!-- 頂部標題區 -->
+        <div class="bg-orange-500 text-white text-center py-5 px-6 shadow-sm">
+            <h1 class="text-2xl font-black tracking-wider">CH / SH 單字快閃</h1>
+            <p class="text-orange-100 text-sm mt-1 font-medium">注意聽自己唸的發音喔！</p>
+        </div>
+
+        <div class="p-8 flex flex-col items-center">
+            
+            <!-- 單字顯示區塊 -->
+            <div class="w-full h-48 bg-orange-50 rounded-2xl flex items-center justify-center border-2 border-orange-200 mb-8 shadow-inner relative overflow-hidden">
+                <!-- 裝飾用背景 -->
+                <div class="absolute top-0 left-0 w-full h-2 bg-orange-200 opacity-50"></div>
+                <div class="absolute bottom-0 right-0 w-full h-2 bg-orange-200 opacity-50"></div>
+                
+                <p id="wordDisplay" class="text-5xl md:text-6xl font-extrabold text-orange-900 tracking-wide z-10 select-none text-center px-4">
+                    Word
+                </p>
+            </div>
+
+            <!-- 操作按鈕區 -->
+            <button onclick="generateWord()" class="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold py-4 px-6 rounded-2xl transition duration-200 shadow-[0_8px_0_0_#c2410c] hover:shadow-[0_6px_0_0_#c2410c] hover:translate-y-[2px] active:shadow-[0_0px_0_0_#c2410c] active:translate-y-[8px] text-xl flex items-center justify-center gap-2">
+                <span>隨機抽單字</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+            </button>
+            
+            <p class="mt-6 text-gray-400 text-sm font-medium" id="counterText">總共 22 個單字</p>
+        </div>
+    </div>
+
+    <script>
+        // 您提供的單字列表 (包含 ch 與 sh 相關字彙)
+        const wordList = [
+            'chicken', 'church', 'lunch', 'shop', 'short', 
+            'fish', 'chair', 'share', 'chop', 'which', 
+            'wish', 'catch', 'cash', 'sheep', 'cheep', 
+            'shirt', 'brush', 'brunch', 'check', 'shake', 
+            'shoes', 'chose'
+        ];
+
+        // 記錄前一次出現的單字，避免連續重複
+        let previousWord = "";
+
+        // 隨機產生單字的函式
+        function generateWord() {
+            let randomIndex;
+            let selectedWord;
+
+            // 確保不會連續兩次抽到同一個單字
+            do {
+                randomIndex = Math.floor(Math.random() * wordList.length);
+                selectedWord = wordList[randomIndex];
+            } while (selectedWord === previousWord && wordList.length > 1);
+
+            previousWord = selectedWord;
+
+            // 更新畫面上的單字
+            const displayElement = document.getElementById('wordDisplay');
+            displayElement.textContent = selectedWord;
+
+            // 重新觸發動畫效果
+            displayElement.classList.remove('zoom-in');
+            void displayElement.offsetWidth; // 觸發重繪 (Reflow)
+            displayElement.classList.add('zoom-in');
+        }
+
+        // 當網頁載入完成後，自動產生第一個單字，並更新總數顯示
+        window.onload = function() {
+            document.getElementById('counterText').textContent = `總共 ${wordList.length} 個單字隨機出現`;
+            generateWord();
+        };
+    </script>
+</body>
+</html>

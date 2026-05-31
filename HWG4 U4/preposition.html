@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機圖片顯示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #image-container {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        img {
+            max-width: 100%;
+            max-height: 60vh;
+            display: block;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="image-container">
+        <img id="random-image" src="" alt="隨機圖片將顯示於此">
+    </div>
+
+    <button onclick="displayRandomImage()">隨機換一張圖片</button>
+
+    <script>
+        // 將所有圖片名稱放入陣列中
+        const images = [
+            "wb_p28_4.jpg",
+            "wb_p28_5.jpg",
+            "wb_p28_6.jpg",
+            "wb_p28_10.jpg",
+            "wb_p28_11.jpg",
+            "wb_p30_3.jpg",
+            "螢幕擷取畫面 2026-05-26 125700.png",
+            "螢幕擷取畫面 2026-05-26 125844.png"
+        ];
+
+        // 隨機選擇並顯示圖片的函數
+        function displayRandomImage() {
+            // 產生 0 到 (陣列長度-1) 之間的隨機整數
+            const randomIndex = Math.floor(Math.random() * images.length);
+            
+            // 取得圖片元素並更新其 src 屬性
+            const imgElement = document.getElementById("random-image");
+            imgElement.src = images[randomIndex];
+        }
+
+        // 網頁載入完成後，自動執行一次以顯示初始隨機圖片
+        window.onload = displayRandomImage;
+    </script>
+
+</body>
+</html>

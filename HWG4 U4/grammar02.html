@@ -1,0 +1,327 @@
+
+
+HTML
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機圖片展示</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #image-container {
+            margin-top: 20px;
+            width: 450px;
+            height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            overflow: hidden;
+            padding: 10px;
+        }
+        #image-container:hover {
+            border-color: #007bff;
+        }
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none; /* 初始隱藏，直到抽中圖片才顯示 */
+            object-fit: contain;
+        }
+        #placeholder-text {
+            color: #888;
+            font-size: 18px;
+            pointer-events: none;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 123, 255, 0.3);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>請點擊按鈕或下方框框來隨機顯示圖片</h1>
+    
+    <button onclick="showRandomImage()">點我抽圖片</button>
+    
+    <div id="image-container" onclick="showRandomImage()">
+        <img id="random-image" src="" alt="隨機圖片">
+        <p id="placeholder-text">圖片將顯示於此 (可直接點擊)</p>
+    </div>
+
+    <script>
+        // 建立一個包含所有圖片檔名的陣列 (請確保檔名與實際檔案完全一致，包含副檔名大小寫)
+        const images = [
+            "apple in box.jpg",
+            "by 01.png",
+            "on 01.png",
+            "under.png",
+            "wb_p28_1.jpg",
+            "wb_p28_4.jpg",
+            "wb_p28_5.jpg",
+            "wb_p28_6.jpg",
+            "wb_p28_7.jpg",
+            "wb_p28_10.jpg"
+        ];
+
+        function showRandomImage() {
+            // 隨機產生一個 0 到 陣列長度減1 的索引值
+            const randomIndex = Math.floor(Math.random() * images.length);
+            
+            // 取得 HTML 元素
+            const imgElement = document.getElementById("random-image");
+            const placeholder = document.getElementById("placeholder-text");
+
+            // 更新圖片來源並調整顯示設定
+            imgElement.src = images[randomIndex];
+            imgElement.style.display = "block";
+            placeholder.style.display = "none";
+        }
+    </script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文空間介係詞互動練習 (in, on, under, by)</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        button {
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .btn-random {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-random:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .btn-answer {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .btn-answer:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+        #image-area {
+            width: 100%;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fafbfc;
+            border: 3px dashed #cbd5e1;
+            border-radius: 12px;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+        #image-area:hover {
+            border-color: #3498db;
+        }
+        img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            display: none;
+        }
+        #placeholder-text {
+            color: #94a3b8;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        #answer-box {
+            margin-top: 25px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .answer-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2c3e50;
+            background-color: #e8f4fd;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .highlight {
+            color: #e74c3c;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>介係詞互動練習 (in, on, under, by)</h1>
+        <p class="subtitle">點擊「隨機抽圖」或「圖片框」切換，再點擊「顯示答案」看句型！</p>
+        
+        <div class="button-group">
+            <button class="btn-random" onclick="nextRandomImage()">隨機抽圖</button>
+            <button class="btn-answer" onclick="showAnswer()">顯示答案</button>
+        </div>
+        
+        <div id="image-area" onclick="nextRandomImage()">
+            <img id="display-img" src="" alt="空間位置圖">
+            <div id="placeholder-text">請點擊按鈕開始抽圖</div>
+        </div>
+        
+        <div id="answer-box">
+            <!-- 答案會動態顯示在這裡 -->
+        </div>
+    </div>
+
+    <script>
+        // 設定圖片檔名與對應的英文答案句型
+        const quizData = [
+            { file: "apple in box.jpg", answer: "The apple is <span class='highlight'>in</span> the box." },
+            { file: "by 01.png", answer: "The hat is <span class='highlight'>by</span> the table." },
+            { file: "on 01.png", answer: "The computer is <span class='highlight'>on</span> the desk." },
+            { file: "under.png", answer: "The computer is <span class='highlight'>under</span> the desk." },
+            { file: "wb_p28_1.jpg", answer: "The book is <span class='highlight'>by</span> the box." },
+            { file: "wb_p28_4.jpg", answer: "The ball is <span class='highlight'>by</span> the box." },
+            { file: "wb_p28_5.jpg", answer: "The ball is <span class='highlight'>in</span> the box." },
+            { file: "wb_p28_6.jpg", answer: "The ball is <span class='highlight'>under</span> the chair." },
+            { file: "wb_p28_7.jpg", answer: "The box is <span class='highlight'>under</span> the desk." },
+            { file: "wb_p28_10.jpg", answer: "The backpack is <span class='highlight'>under</span> the chair." }
+        ];
+
+        let currentIndex = -1;
+
+        function nextRandomImage() {
+            let newIndex;
+            // 避免連續抽到同一張圖
+            do {
+                newIndex = Math.floor(Math.random() * quizData.length);
+            } while (newIndex === currentIndex && quizData.length > 1);
+            
+            currentIndex = newIndex;
+            
+            // 更新圖片與隱藏前一次的答案
+            const imgElement = document.getElementById("display-img");
+            const placeholder = document.getElementById("placeholder-text");
+            const answerBox = document.getElementById("answer-box");
+            
+            imgElement.src = quizData[currentIndex].file;
+            imgElement.style.display = "block";
+            placeholder.style.display = "none";
+            
+            // 清空答案區，等使用者按按鈕才顯示
+            answerBox.innerHTML = "";
+        }
+
+        function showAnswer() {
+            const answerBox = document.getElementById("answer-box");
+            
+            // 檢查是否已經有選定圖片
+            if (currentIndex === -1) {
+                answerBox.innerHTML = "<div class='answer-text' style='border-left-color: #e74c3c; background-color: #fdf2f2;'>請先點選「隨機抽圖」喔！</div>";
+                return;
+            }
+            
+            // 顯示當前圖片的正確答案
+            answerBox.innerHTML = `<div class="answer-text">${quizData[currentIndex].answer}</div>`;
+        }
+    </script>
+
+</body>
+</html>
+spatial_prepositions_quiz.html
+目前顯示的是「spatial_prepositions_quiz.html」。

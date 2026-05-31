@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文所有格與單複數句型練習</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            width: 80%;
+            max-width: 800px;
+            height: 350px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .left, .right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .left {
+            border-right: 2px dashed #ddd;
+            background-color: #fafafa;
+        }
+        .left img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .right {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        #btn-generate {
+            background-color: #3498db;
+            color: white;
+        }
+        #btn-generate:hover { background-color: #2980b9; }
+        
+        #btn-answer {
+            background-color: #2ecc71;
+            color: white;
+        }
+        #btn-answer:hover { background-color: #27ae60; }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        #result-box {
+            min-height: 60px;
+            padding: 15px 30px;
+            background-color: #fff3cd;
+            border: 2px solid #ffeeba;
+            border-radius: 8px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #856404;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden; /* 預設隱藏，避免畫面跳動 */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>句型練習</h1>
+
+    <div class="container">
+        <div class="left">
+            <img id="item-image" src="" alt="Item Image">
+        </div>
+        <div class="right">
+            <span id="owner-text"></span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="btn-generate" onclick="generateQuestion()">隨機產生下一題</button>
+        <button id="btn-answer" onclick="showAnswer()">顯示正確句子</button>
+    </div>
+
+    <div id="result-box"></div>
+
+    <script>
+        // 定義物品陣列：包含檔名、英文名稱，以及是否為複數(isPlural)
+        const items = [
+            { src: 'p58_1.jpg', name: 'backpack', isPlural: false },
+            { src: 'p58_2.jpg', name: 'cap', isPlural: false },
+            { src: 'p58_3.jpg', name: 'lunchbox', isPlural: false },
+            { src: 'p58_4.jpg', name: 'umbrella', isPlural: false },
+            { src: 'p59_1.jpg', name: 'water bottle', isPlural: false },
+            { src: 'p59_2.jpg', name: 'workbook', isPlural: false },
+            { src: 'p59_3.jpg', name: 'glasses', isPlural: true }, // 複數
+            { src: 'p59_4.jpg', name: 'shoes', isPlural: true }    // 複數
+        ];
+
+        // 定義人物/所有格代名詞陣列
+        const owners = ["my", "his", "her", "your", "Chuck", "Tom", "Lily", "Jenny", "Peter", "my sister", "your brother"];
+        
+        // 這些代名詞本身就是所有格，不需要加 's
+        const pronouns = ["my", "his", "her", "your"];
+
+        let currentItem = null;
+        let currentOwner = "";
+
+        // 隨機抽取圖片與單字
+        function generateQuestion() {
+            // 隨機選擇
+            currentItem = items[Math.floor(Math.random() * items.length)];
+            currentOwner = owners[Math.floor(Math.random() * owners.length)];
+
+            // 更新畫面
+            document.getElementById('item-image').src = currentItem.src;
+            document.getElementById('owner-text').textContent = currentOwner;
+            
+            // 隱藏並清空上一次的答案
+            const resultBox = document.getElementById('result-box');
+            resultBox.style.visibility = 'hidden';
+            resultBox.textContent = "";
+        }
+
+        // 計算並顯示答案
+        function showAnswer() {
+            if (!currentItem || !currentOwner) return;
+
+            // 判斷是否需要加 's
+            let possessive = currentOwner;
+            if (!pronouns.includes(currentOwner)) {
+                possessive += "'s"; // 不是所有格代名詞就加上 's
+            }
+
+            let sentence = "";
+            
+            // 判斷單複數決定開頭是 It's 還是 They're
+            if (currentItem.isPlural) {
+                sentence = `They're ${possessive} ${currentItem.name}.`;
+            } else {
+                sentence = `It's ${possessive} ${currentItem.name}.`;
+            }
+
+            // 顯示答案
+            const resultBox = document.getElementById('result-box');
+            resultBox.textContent = sentence;
+            resultBox.style.visibility = 'visible';
+        }
+
+        // 網頁載入完成後自動產生第一題
+        window.onload = generateQuestion;
+    </script>
+
+</body>
+</html>

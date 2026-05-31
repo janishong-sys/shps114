@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英語句型練習</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .container {
+            background-color: #fff;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .images-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            margin-top: 20px;
+        }
+        .img-box {
+            text-align: center;
+        }
+        .img-box img {
+            width: 250px;
+            height: 250px;
+            object-fit: contain;
+            border: 3px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #fafafa;
+        }
+        .question {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2980b9;
+            margin: 30px 0;
+            letter-spacing: 1px;
+        }
+        .answer {
+            font-size: 36px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 30px 0;
+            opacity: 0; /* 預設隱藏，保留空間 */
+            transition: opacity 0.3s ease;
+        }
+        .answer.show {
+            opacity: 1;
+        }
+        .btn-group {
+            margin-top: 20px;
+        }
+        .btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #2ecc71;
+        }
+        .btn-secondary {
+            background-color: #f39c12;
+        }
+        .btn-secondary:hover {
+            background-color: #f1c40f;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>句型練習：What would you like?</h1>
+    
+    <div class="images-wrapper">
+        <div class="img-box">
+            <img id="mealImage" src="" alt="Meal Time">
+        </div>
+        <div class="img-box">
+            <img id="foodImage" src="" alt="Food">
+        </div>
+    </div>
+
+    <div class="question" id="questionText">What would you like for _______?</div>
+    <div class="answer" id="answerText">I would like some bread.</div>
+
+    <div class="btn-group">
+        <button class="btn btn-secondary" onclick="showAnswer()">顯示答句</button>
+        <button class="btn" onclick="generatePractice()">下一題</button>
+    </div>
+</div>
+
+<script>
+    // 定義主詞與其對應的答句代名詞
+    const subjects = [
+        { q: "you", a: "I" },
+        { q: "he", a: "He" },
+        { q: "she", a: "She" },
+        { q: "Kathy", a: "She" },
+        { q: "Jacky", a: "He" },
+        { q: "your sister", a: "She" },
+        { q: "Grandpa", a: "He" }
+    ];
+
+    // 定義食物圖片與名稱
+    const foods = [
+        { src: "p44_4.jpg", name: "some bread" },
+        { src: "p45_2.jpg", name: "some salad" },
+        { src: "p45_3.jpg", name: "some soup" },
+        { src: "p45_4.jpg", name: "some noodles" },
+        { src: "p46_5.jpg", name: "some chicken" },
+        { src: "p46_8.jpg", name: "a hamburger" }
+    ];
+
+    // 定義時間/餐點圖片
+    const meals = [
+        { src: "p44_1.jpg" }, // 早餐
+        { src: "p44_2.jpg" }, // 午餐
+        { src: "p44_3.jpg" }  // 晚餐
+    ];
+
+    function getRandomItem(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function generatePractice() {
+        // 隱藏答句
+        document.getElementById("answerText").classList.remove("show");
+
+        // 隨機抽選
+        const currentSubject = getRandomItem(subjects);
+        const currentFood = getRandomItem(foods);
+        const currentMeal = getRandomItem(meals);
+
+        // 更新圖片來源
+        document.getElementById("foodImage").src = currentFood.src;
+        document.getElementById("mealImage").src = currentMeal.src;
+        
+        // 更新問句（主詞隨機，時間為空格）
+        document.getElementById("questionText").innerText = `What would ${currentSubject.q} like for _______?`;
+        
+        // 更新答句（根據主詞變換代名詞）
+        document.getElementById("answerText").innerText = `${currentSubject.a} would like ${currentFood.name}.`;
+    }
+
+    function showAnswer() {
+        document.getElementById("answerText").classList.add("show");
+    }
+
+    // 網頁載入時馬上產生第一題
+    window.onload = generatePractice;
+</script>
+
+</body>
+</html>
