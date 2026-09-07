@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>單字隨機抽卡遊戲</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+        }
+
+        .card {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            width: 360px;
+            max-width: 90%;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #4A4A4A;
+            font-size: 1.5rem;
+        }
+
+        #word-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #2D3748;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            background-color: #F7FAFC;
+            border-radius: 12px;
+            border: 2px dashed #CBD5E0;
+            word-break: break-all;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        #status-info {
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: #718096;
+        }
+
+        #remaining-count {
+            font-weight: bold;
+            color: #4A5568;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>單字隨機抽卡</h2>
+        <div id="word-display">點擊開始</div>
+        <button onclick="drawWord()">下一個單字</button>
+        <div id="status-info">剩餘單字：<span id="remaining-count">0</span> / <span id="total-count">0</span></div>
+    </div>
+
+    <script>
+        // 包含你提供的所有 31 個單字
+        const wordList = [
+            "hat", "tap", "rat", "sad", "mad", "bat", "cap", "pad", "back", "fat",
+            "cake", "cape", "lake", "hate", "rate", "tape", "date", "fate", "bake",
+            "mail", "rain", "maid", "paid", "bait", "fail", "May", "today", "say",
+            "bay", "play", "pay"
+        ];
+
+        // 複製一份陣列作為未抽出的單字庫
+        let remainingWords = [...wordList];
+
+        // 初始化顯示資訊
+        document.getElementById("total-count").innerText = wordList.length;
+        document.getElementById("remaining-count").innerText = remainingWords.length;
+
+        function drawWord() {
+            const display = document.getElementById("word-display");
+            const countDisplay = document.getElementById("remaining-count");
+
+            // 如果已經全部抽完，彈出提示並自動重新初始化
+            if (remainingWords.length === 0) {
+                alert("🎉 所有單字都已抽完！將自動重新重置。");
+                remainingWords = [...wordList];
+            }
+
+            // 隨機產生索引值 ( 0 ~ remainingWords.length - 1 )
+            const randomIndex = Math.floor(Math.random() * remainingWords.length);
+
+            // 使用 splice 移除並取出該單字（確保不會再次抽到）
+            const pickedWord = remainingWords.splice(randomIndex, 1)[0];
+
+            // 顯示抽到的單字與更新剩餘數量
+            display.innerText = pickedWord;
+            countDisplay.innerText = remainingWords.length;
+        }
+    </script>
+
+</body>
+</html>
