@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機數字英文拼字練習</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+        h1 {
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .number-display {
+            font-size: 80px;
+            font-weight: bold;
+            color: #4a90e2;
+            margin: 20px 0;
+            letter-spacing: 2px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        button {
+            border: none;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn-random {
+            background-color: #4a90e2;
+            color: #ffffff;
+        }
+        .btn-random:hover {
+            background-color: #357abd;
+            transform: translateY(-2px);
+        }
+        .btn-show {
+            background-color: #50e3c2;
+            color: #1a5348;
+        }
+        .btn-show:hover {
+            background-color: #38c9aa;
+            transform: translateY(-2px);
+        }
+        .spelling-display {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f7f9fc;
+            border-radius: 12px;
+            border: 2px dashed #4a90e2;
+            font-size: 22px;
+            color: #2c3e50;
+            font-weight: 600;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word;
+        }
+        .hidden {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>隨機數字英文拼字轉換</h1>
+    
+    <div class="number-display" id="numberDisplay">---</div>
+    
+    <div class="btn-group">
+        <button class="btn-random" onclick="generateRandomNumber()">產生隨機數字</button>
+        <button class="btn-show" onclick="showSpelling()">顯示英文拼字</button>
+    </div>
+    
+    <div class="spelling-display hidden" id="spellingDisplay">
+        請先點擊產生數字
+    </div>
+</div>
+
+<script>
+    let currentNumber = 0;
+
+    const units = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+    const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+    const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+    function numberToWords(num) {
+        if (num === 0) return 'zero';
+
+        let words = '';
+
+        // 處理百位數
+        if (Math.floor(num / 100) > 0) {
+            words += units[Math.floor(num / 100)] + ' hundred';
+            num %= 100;
+            if (num > 0) words += ' and ';
+        }
+
+        // 處理十位數與個位數
+        if (num >= 10 && num < 20) {
+            words += teens[num - 10];
+        } else if (num >= 20) {
+            words += tens[Math.floor(num / 10)];
+            if (num % 10 > 0) {
+                words += '-' + units[num % 10];
+            }
+        } else if (num > 0) {
+            words += units[num];
+        }
+
+        return words;
+    }
+
+    function generateRandomNumber() {
+        // 產生 1 到 999 的隨機數字
+        currentNumber = Math.floor(Math.random() * 999) + 1;
+        document.getElementById('numberDisplay').innerText = currentNumber;
+        
+        // 隱藏舊的答案
+        const spellingElem = document.getElementById('spellingDisplay');
+        spellingElem.classList.remove('visible');
+        spellingElem.classList.add('hidden');
+    }
+
+    function showSpelling() {
+        const spellingElem = document.getElementById('spellingDisplay');
+        if (currentNumber === 0) {
+            spellingElem.innerText = '請先按「產生隨機數字」！';
+        } else {
+            spellingElem.innerText = numberToWords(currentNumber);
+        }
+        spellingElem.classList.remove('hidden');
+        spellingElem.classList.add('visible');
+    }
+
+    // 頁面載入時自動產生第一個數字
+    window.onload = generateRandomNumber;
+</script>
+
+</body>
+</html>
