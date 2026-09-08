@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>單字卡抽卡練習</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f7f6;
+        }
+
+        .card-container {
+            background-color: white;
+            padding: 40px 60px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 250px;
+        }
+
+        .word-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .counter {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        button {
+            font-size: 18px;
+            padding: 12px 28px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card-container">
+        <div class="word-display" id="wordDisplay">點擊下方按鈕開始</div>
+        <div class="counter" id="counter">剩餘單字數：30 / 30</div>
+        <button id="nextBtn" onclick="showNextWord()">下一個單字</button>
+    </div>
+
+    <script>
+        // 原始單字陣列
+        const originalWords = [
+            "cap", "sam", "cape", "bake", "same", "cake", 
+            "pet", "pete", "eve", "web", "Chinese", "these", 
+            "kit", "Tim", "kite", "bike", "time", "ride", 
+            "hop", "not", "hope", "nose", "note", "rose", 
+            "cut", "cub", "cute", "mute", "cube", "fuse"
+        ];
+
+        let remainingWords = [];
+
+        // 洗牌算法（Fisher-Yates Shuffle）確保隨機且不重複
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // 初始化或重新開始
+        function init() {
+            remainingWords = shuffle([...originalWords]);
+            document.getElementById("wordDisplay").innerText = "點擊下方按鈕開始";
+            document.getElementById("counter").innerText = `剩餘單字數：${remainingWords.length} / ${originalWords.length}`;
+            document.getElementById("nextBtn").innerText = "下一個單字";
+            document.getElementById("nextBtn").disabled = false;
+        }
+
+        // 顯示下一個單字
+        function showNextWord() {
+            if (remainingWords.length === 0) {
+                init();
+                return;
+            }
+
+            const currentWord = remainingWords.pop();
+            document.getElementById("wordDisplay").innerText = currentWord;
+            document.getElementById("counter").innerText = `剩餘單字數：${remainingWords.length} / ${originalWords.length}`;
+
+            if (remainingWords.length === 0) {
+                document.getElementById("nextBtn").innerText = "已完成！點擊重新開始";
+            }
+        }
+
+        // 頁面載入時初始化
+        init();
+    </script>
+
+</body>
+</html>
