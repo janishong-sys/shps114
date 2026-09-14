@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機星期單字</title>
+    <style>
+        body {
+            font-family: Arial, "Microsoft JhengHei", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f7f6;
+        }
+
+        .card {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 80%;
+        }
+
+        h1 {
+            color: #333333;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+
+        .word-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #007bff;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            padding: 10px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>隨機單字抽籤</h1>
+        <!-- 顯示單字的區域 -->
+        <div id="wordDisplay" class="word-display">點擊下方按鈕</div>
+        <!-- 觸發隨機抽取的按鈕 -->
+        <button onclick="getRandomWord()">下一個單字</button>
+    </div>
+
+    <script>
+        // 定義單字陣列
+        const words = [
+            'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+            '星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'
+        ];
+
+        // 取得隨機單字的功能
+        function getRandomWord() {
+            // 計算隨機索引值 (0 ~ words.length - 1)
+            const randomIndex = Math.floor(Math.random() * words.length);
+            
+            // 取得對應的單字
+            const selectedWord = words[randomIndex];
+            
+            // 將單字顯示在畫面上
+            document.getElementById('wordDisplay').textContent = selectedWord;
+        }
+
+        // 頁面載入完成後自動執行一次
+        window.onload = getRandomWord;
+    </script>
+
+</body>
+</html>
