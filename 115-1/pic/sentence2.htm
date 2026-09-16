@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is it ____ today?</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+        }
+
+        .container {
+            text-align: center;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 550px;
+            width: 90%;
+        }
+
+        /* 圖片容器與提示效果 */
+        .image-container {
+            width: 250px;
+            height: 180px;
+            margin: 0 auto 20px auto;
+            border: 3px dashed #4a90e2;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #f0f4f8;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .image-container:hover {
+            transform: scale(1.02);
+            border-color: #357abd;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .placeholder-text {
+            color: #4a90e2;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* 問答文字區域 */
+        .question-box {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0 10px 0;
+        }
+
+        .answer-box {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0 25px 0;
+            min-height: 2.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .blank {
+            color: #e74c3c;
+            border-bottom: 3px solid #e74c3c;
+            padding: 0 10px;
+        }
+
+        /* 按鈕樣式 */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        button {
+            font-size: 1.1rem;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-random {
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        .btn-random:hover {
+            background-color: #357abd;
+        }
+
+        .btn-answer {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-answer:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 頂端隨機圖片顯示區 -->
+    <div class="image-container" id="imgContainer" onclick="generateQuestion()" title="點擊換一張圖片與題目">
+        <span class="placeholder-text" id="placeholder">點擊這裡顯示圖片與題目</span>
+        <img id="dayImage" src="" alt="Calendar Day" style="display: none;">
+    </div>
+
+    <!-- 文字問答區 -->
+    <div class="question-box" id="questionLine">Is it <span class="blank">____</span> today?</div>
+    <div class="answer-box" id="answerLine">__________________.</div>
+
+    <!-- 控制按鈕 -->
+    <div class="btn-group">
+        <button class="btn-random" onclick="generateQuestion()">隨機題目與圖片</button>
+        <button class="btn-answer" onclick="showAnswer()">顯示答案</button>
+    </div>
+</div>
+
+<script>
+    // 星期選項與圖片對應資料
+    const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    const daysData = [
+        { file: 'wb_p9_1.jpg', answer: 'Sunday' },
+        { file: 'wb_p9_2.jpg', answer: 'Monday' },
+        { file: 'wb_p9_3.jpg', answer: 'Tuesday' },
+        { file: 'wb_p9_4.jpg', answer: 'Wednesday' },
+        { file: 'wb_p9_5.jpg', answer: 'Thursday' },
+        { file: 'wb_p9_6.jpg', answer: 'Friday' },
+        { file: 'wb_p9_7.jpg', answer: 'Saturday' }
+    ];
+
+    let currentImgIndex = -1;
+    let currentQuestionDay = '';
+
+    // 隨機產生圖片與問題中的星期單字
+    function generateQuestion() {
+        // 1. 隨機選取圖片索引
+        let randomImgIndex;
+        do {
+            randomImgIndex = Math.floor(Math.random() * daysData.length);
+        } while (randomImgIndex === currentImgIndex && daysData.length > 1);
+
+        currentImgIndex = randomImgIndex;
+
+        // 2. 隨機選取問句中的星期單字
+        const randomDayIndex = Math.floor(Math.random() * weekDays.length);
+        currentQuestionDay = weekDays[randomDayIndex];
+
+        // 3. 更新圖片
+        const imgElement = document.getElementById('dayImage');
+        const placeholder = document.getElementById('placeholder');
+        imgElement.src = daysData[currentImgIndex].file;
+        imgElement.style.display = 'block';
+        placeholder.style.display = 'none';
+
+        // 4. 更新問句：Is it ____ today?
+        const questionLine = document.getElementById('questionLine');
+        questionLine.innerHTML = `Is it <span style="color: #4a90e2;">${currentQuestionDay}</span> today?`;
+
+        // 5. 重置答句為底線
+        resetAnswer();
+    }
+
+    // 顯示正確答案
+    function showAnswer() {
+        if (currentImgIndex === -1) {
+            alert('請先點擊上方區域或「隨機題目與圖片」按鈕！');
+            return;
+        }
+
+        const answerLine = document.getElementById('answerLine');
+        const correctDay = daysData[currentImgIndex].answer;
+
+        // 判斷問句中的星期是否與圖片相同
+        if (currentQuestionDay === correctDay) {
+            answerLine.innerHTML = `<span style="color: #2ecc71;">Yes, it is.</span>`;
+        } else {
+            answerLine.innerHTML = `<span style="color: #e74c3c;">No, it isn't. It's ${correctDay}.</span>`;
+        }
+    }
+
+    // 重置答句
+    function resetAnswer() {
+        const answerLine = document.getElementById('answerLine');
+        answerLine.innerHTML = `__________________.`;
+    }
+</script>
+
+</body>
+</html>
