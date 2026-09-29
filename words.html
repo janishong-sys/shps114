@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機單字學習系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <header class="bg-indigo-600 text-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-shuffle text-2xl text-indigo-200"></i>
+                <h1 class="text-2xl font-bold tracking-wide">隨機單字抽取系統</h1>
+            </div>
+            <div class="flex gap-2">
+                <button id="mode-card-btn" onclick="switchView('card')" class="px-4 py-2 rounded-lg bg-indigo-700 hover:bg-indigo-800 text-white font-medium transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-clone"></i> 單字卡模式
+                </button>
+                <button id="mode-list-btn" onclick="switchView('list')" class="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-800 text-white font-medium transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-list-ol"></i> 完整列表模式
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Sidebar: Controls & Custom Inputs -->
+        <section class="lg:col-span-1 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-5 h-fit">
+            <div>
+                <h2 class="text-lg font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-indigo-500"></i> 輸入單字列表
+                </h2>
+                <p class="text-xs text-slate-500 mb-3">請輸入單字（可用換行、逗號或空格分隔）：</p>
+                <textarea id="word-input" class="w-full h-40 p-3 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-y font-mono" placeholder="Apple&#10;Banana&#10;Cat&#10;Dog&#10;Elephant"></textarea>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <button onclick="applyCustomWords()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrows-rotate"></i> 更新單字庫並打亂
+                </button>
+                
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button onclick="loadPreset('cet4')" class="py-1.5 px-3 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition border border-slate-200">
+                        載入：日常用語
+                    </button>
+                    <button onclick="loadPreset('tech')" class="py-1.5 px-3 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition border border-slate-200">
+                        載入：科技詞彙
+                    </button>
+                </div>
+            </div>
+
+            <hr class="border-slate-100 my-1">
+
+            <!-- Stats & Info -->
+            <div class="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-semibold text-indigo-900 uppercase tracking-wider">統計資訊</span>
+                    <span id="word-count-badge" class="px-2 py-0.5 text-xs bg-indigo-200 text-indigo-800 font-bold rounded-full">0 個</span>
+                </div>
+                <div class="text-xs text-slate-600 space-y-1">
+                    <p class="flex justify-between"><span>目前已抽數量：</span><strong id="drawn-count" class="text-indigo-600">0</strong></p>
+                    <p class="flex justify-between"><span>剩餘單字數量：</span><strong id="remaining-count" class="text-indigo-600">0</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Area -->
+        <section class="lg:col-span-2 flex flex-col gap-4">
+
+            <!-- Flashcard View -->
+            <div id="card-view" class="flex flex-col items-center justify-between min-h-[420px] bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative">
+                
+                <!-- Card Header Info -->
+                <div class="w-full flex justify-between items-center text-sm text-slate-400">
+                    <span id="card-progress">單字卡 0 / 0</span>
+                    <button onclick="speakCurrentWord()" class="p-2 text-indigo-500 hover:bg-indigo-50 rounded-full transition" title="發音">
+                        <i class="fa-solid fa-volume-high text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Interactive Flip Card -->
+                <div class="my-6 w-full max-w-md h-56 perspective-1000 cursor-pointer" onclick="toggleCardFlip()">
+                    <div id="flashcard" class="relative w-full h-full duration-500 transform-style-3d shadow-lg rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center p-6 text-center">
+                        <!-- Front View -->
+                        <div class="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-4">
+                            <span class="text-xs text-indigo-400 font-semibold mb-2 uppercase tracking-widest">Random Word</span>
+                            <h2 id="card-text-front" class="text-3xl sm:text-4xl font-bold text-slate-800 break-words max-w-full">
+                                點擊按鈕開始抽取
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-4"><i class="fa-solid fa-hand-pointer mr-1"></i> 點擊卡片翻面看隱藏內容</p>
+                        </div>
+                        <!-- Back View -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-4 bg-indigo-600 text-white rounded-2xl">
+                            <span class="text-xs text-indigo-200 font-semibold mb-2 uppercase tracking-widest">Word Index</span>
+                            <h3 id="card-text-back" class="text-2xl font-semibold">
+                                -
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls for Card Mode -->
+                <div class="w-full flex flex-wrap justify-center gap-3">
+                    <button onclick="prevWord()" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 font-medium transition flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-left"></i> 上一個
+                    </button>
+                    <button onclick="reshuffle()" class="px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-medium transition flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-shuffle"></i> 重新打亂
+                    </button>
+                    <button onclick="nextWord()" class="px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition flex items-center gap-2 shadow-md">
+                        下一個 <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Full List View (Hidden by Default) -->
+            <div id="list-view" class="hidden flex-col bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">已隨機打亂的單字列表</h2>
+                        <p class="text-xs text-slate-500">保證所有單字隨機出現且無重複排列</p>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button onclick="reshuffle()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-shuffle text-xs"></i> 重新清洗順序
+                        </button>
+                        <button onclick="copyListToClipboard()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-copy text-xs"></i> 複製列表
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Word Table / Grid -->
+                <div class="overflow-x-auto max-h-[480px] overflow-y-auto border border-slate-200 rounded-lg">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs font-semibold uppercase sticky top-0 border-b border-slate-200">
+                                <th class="py-3 px-4 w-16">序號</th>
+                                <th class="py-3 px-4">單字 / 詞彙</th>
+                                <th class="py-3 px-4 text-right w-24">朗讀</th>
+                            </tr>
+                        </thead>
+                        <tbody id="word-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- JS Inject Table Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Toast Notification Container -->
+            <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-white text-sm px-4 py-3 rounded-lg shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2 z-50">
+                <i class="fa-solid fa-circle-info text-indigo-400"></i>
+                <span id="toast-msg">提示訊息</span>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+        <p>隨機單字排列應用程式 &copy; 2026 - 隨機且不重複單字抽卡</p>
+    </footer>
+
+    <script>
+        // Preset Vocabulary Lists
+        const PRESETS = {
+            cet4: ["Apple", "Banana", "Cherry", "Dragonfruit", "Elephant", "Falcon", "Giraffe", "Horizon", "Island", "Jungle", "Kangaroo", "Lemon", "Mountain", "Nectar", "Ocean", "Penguin", "Quartz", "Rainbow", "Sunlight", "Tiger"],
+            tech: ["Algorithm", "Binary", "Compiler", "Database", "Encryption", "Framework", "Graphics", "Hardware", "Interface", "JavaScript", "Kernel", "Latency", "Memory", "Network", "Optimization", "Protocol", "Quantum", "Recursion", "Software", "Variable"]
+        };
+
+        // State Variables
+        let originalWords = [...PRESETS.cet4];
+        let shuffledWords = [];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        // On Page Load Initialization
+        window.onload = function () {
+            document.getElementById('word-input').value = originalWords.join('\n');
+            reshuffle();
+        };
+
+        /**
+         * Fisher-Yates Shuffle Algorithm to guarantee non-repeating random order
+         */
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Apply new words input by the user
+        function applyCustomWords() {
+            const rawText = document.getElementById('word-input').value;
+            // Split by newlines, commas, or spaces and remove empty values
+            const parsedWords = rawText
+                .split(/[\n,;\s]+/)
+                .map(w => w.trim())
+                .filter(w => w.length > 0);
+
+            if (parsedWords.length === 0) {
+                showToast("請輸入至少一個單字！");
+                return;
+            }
+
+            // Remove duplicates from the initial set if present
+            originalWords = Array.from(new Set(parsedWords));
+            document.getElementById('word-input').value = originalWords.join('\n');
+            
+            reshuffle();
+            showToast(`已成功載入 ${originalWords.length} 個不重複單字！`);
+        }
+
+        // Load Preset Words
+        function loadPreset(key) {
+            if (PRESETS[key]) {
+                originalWords = [...PRESETS[key]];
+                document.getElementById('word-input').value = originalWords.join('\n');
+                reshuffle();
+                showToast("已載入預設單字庫！");
+            }
+        }
+
+        // Reshuffle the current list
+        function reshuffle() {
+            if (originalWords.length === 0) return;
+            shuffledWords = shuffleArray(originalWords);
+            currentIndex = 0;
+            isFlipped = false;
+            
+            resetCardFlipState();
+            updateCardDisplay();
+            renderTableList();
+            updateStats();
+        }
+
+        // Update Flashcard UI
+        function updateCardDisplay() {
+            const frontText = document.getElementById('card-text-front');
+            const backText = document.getElementById('card-text-back');
+            const progressText = document.getElementById('card-progress');
+
+            if (shuffledWords.length > 0) {
+                frontText.innerText = shuffledWords[currentIndex];
+                backText.innerText = `單字位置：第 ${currentIndex + 1} / ${shuffledWords.length} 個`;
+                progressText.innerText = `單字卡 ${currentIndex + 1} / ${shuffledWords.length}`;
+            } else {
+                frontText.innerText = "沒有單字";
+                backText.innerText = "-";
+                progressText.innerText = "0 / 0";
+            }
+
+            updateStats();
+        }
+
+        // Card Navigation: Next
+        function nextWord() {
+            if (shuffledWords.length === 0) return;
+            if (currentIndex < shuffledWords.length - 1) {
+                currentIndex++;
+                resetCardFlipState();
+                updateCardDisplay();
+            } else {
+                showToast("已經是最後一個單字！已自動重新打亂輪播。");
+                reshuffle();
+            }
+        }
+
+        // Card Navigation: Previous
+        function prevWord() {
+            if (shuffledWords.length === 0) return;
+            if (currentIndex > 0) {
+                currentIndex--;
+                resetCardFlipState();
+                updateCardDisplay();
+            } else {
+                showToast("這是第一個單字！");
+            }
+        }
+
+        // Toggle Card Flip
+        function toggleCardFlip() {
+            const card = document.getElementById('flashcard');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                card.classList.add('rotate-y-180');
+            } else {
+                card.classList.remove('rotate-y-180');
+            }
+        }
+
+        function resetCardFlipState() {
+            const card = document.getElementById('flashcard');
+            isFlipped = false;
+            card.classList.remove('rotate-y-180');
+        }
+
+        // Render Table View
+        function renderTableList() {
+            const tbody = document.getElementById('word-table-body');
+            tbody.innerHTML = '';
+
+            shuffledWords.forEach((word, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-xs text-slate-400">${index + 1}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-700">${escapeHtml(word)}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="speakText('${escapeJsString(word)}')" class="p-1.5 text-slate-400 hover:text-indigo-600 rounded-md transition">
+                            <i class="fa-solid fa-volume-low"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Update Statistics Badges
+        function updateStats() {
+            document.getElementById('word-count-badge').innerText = `${shuffledWords.length} 個`;
+            document.getElementById('drawn-count').innerText = shuffledWords.length > 0 ? currentIndex + 1 : 0;
+            document.getElementById('remaining-count').innerText = shuffledWords.length > 0 ? shuffledWords.length - (currentIndex + 1) : 0;
+        }
+
+        // Switch View Modes (Card vs List)
+        function switchView(mode) {
+            const cardView = document.getElementById('card-view');
+            const listView = document.getElementById('list-view');
+            const cardBtn = document.getElementById('mode-card-btn');
+            const listBtn = document.getElementById('mode-list-btn');
+
+            if (mode === 'card') {
+                cardView.classList.remove('hidden');
+                cardView.classList.add('flex');
+                listView.classList.add('hidden');
+                listView.classList.remove('flex');
+
+                cardBtn.className = "px-4 py-2 rounded-lg bg-indigo-700 hover:bg-indigo-800 text-white font-medium transition flex items-center gap-2 shadow-sm";
+                listBtn.className = "px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-800 text-white font-medium transition flex items-center gap-2 shadow-sm";
+            } else {
+                cardView.classList.add('hidden');
+                cardView.classList.remove('flex');
+                listView.classList.remove('hidden');
+                listView.classList.add('flex');
+
+                cardBtn.className = "px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-800 text-white font-medium transition flex items-center gap-2 shadow-sm";
+                listBtn.className = "px-4 py-2 rounded-lg bg-indigo-700 hover:bg-indigo-800 text-white font-medium transition flex items-center gap-2 shadow-sm";
+            }
+        }
+
+        // Web Speech API for Text-to-Speech Pronunciation
+        function speakCurrentWord() {
+            if (shuffledWords.length > 0) {
+                speakText(shuffledWords[currentIndex]);
+            }
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop current speech if playing
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast("您的瀏覽器不支援發音功能");
+            }
+        }
+
+        // Copy list to clipboard
+        function copyListToClipboard() {
+            if (shuffledWords.length === 0) return;
+            const textToCopy = shuffledWords.map((w, i) => `${i + 1}. ${w}`).join('\n');
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("已成功複製隨機單字列表！");
+            } catch (err) {
+                showToast("複製失敗，請手動複製");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Show Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = message;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2500);
+        }
+
+        // Helper Utility to Prevent XSS Injection
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, function (m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+
+        function escapeJsString(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+    </script>
+</body>
+</html>

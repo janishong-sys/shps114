@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機句子不重複閱讀系統</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <header class="bg-indigo-600 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-500/50 rounded-xl shadow-inner">
+                    <i class="fa-solid fa-shuffle text-xl text-indigo-100"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">英語單句隨機抽取閱讀系統</h1>
+                    <p class="text-xs text-indigo-200">Randomized Non-Repeating Sentence Player</p>
+                </div>
+            </div>
+            
+            <!-- View Mode Toggles -->
+            <div class="flex bg-indigo-700/60 p-1 rounded-xl gap-1">
+                <button id="mode-card-btn" onclick="switchView('card')" class="px-4 py-1.5 rounded-lg bg-white text-indigo-700 font-semibold text-sm transition shadow flex items-center gap-2">
+                    <i class="fa-solid fa-clone"></i> 單句卡片模式
+                </button>
+                <button id="mode-list-btn" onclick="switchView('list')" class="px-4 py-1.5 rounded-lg text-indigo-100 hover:text-white hover:bg-indigo-600/50 font-medium text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-list-ol"></i> 完整隨機列表
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Sidebar: Sentence Management and Options (4 cols) -->
+        <section class="lg:col-span-4 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between gap-5 h-fit">
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-base font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-indigo-500"></i> 句子庫編輯與設置
+                    </h2>
+                    <span id="sentence-count-tag" class="text-xs font-semibold px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full">
+                        0 個句子
+                    </span>
+                </div>
+
+                <div>
+                    <label for="sentence-input" class="block text-xs text-slate-500 mb-1.5 font-medium">
+                        預載句子列表（可自由編輯或貼上新內容）：
+                    </label>
+                    <textarea id="sentence-input" class="w-full h-56 p-3 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none resize-y font-mono text-slate-700 transition" placeholder="請在此輸入要打亂的句子（每行一句）..."></textarea>
+                </div>
+
+                <button onclick="applyCustomSentences()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-medium text-sm rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrows-rotate"></i> 更新句子庫並重新打亂
+                </button>
+
+                <!-- Shortcut Tip -->
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-500 space-y-1">
+                    <p class="font-semibold text-slate-700"><i class="fa-solid fa-keyboard text-indigo-500 mr-1"></i> 快捷鍵說明：</p>
+                    <p><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded text-slate-700 font-mono">←</kbd> / <kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded text-slate-700 font-mono">→</kbd> 切換上一句 / 下一句</p>
+                    <p><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded text-slate-700 font-mono">Space</kbd> 語音朗讀當前句子</p>
+                </div>
+            </div>
+
+            <!-- Speech Settings Controls -->
+            <div class="pt-4 border-t border-slate-100 space-y-3">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-sliders text-indigo-500"></i> 語音朗讀設定 (TTS)
+                </h3>
+                <div>
+                    <div class="flex justify-between text-xs text-slate-600 mb-1">
+                        <span>朗讀速度 (Speed)</span>
+                        <span id="rate-value" class="font-bold text-indigo-600">1.0x</span>
+                    </div>
+                    <input id="speech-rate" type="range" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateSpeechRate(this.value)" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Display Content Area (8 cols) -->
+        <section class="lg:col-span-8 flex flex-col gap-4">
+
+            <!-- Card Interactive Mode -->
+            <div id="card-view" class="flex flex-col items-center justify-between min-h-[480px] bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200/80 relative">
+                
+                <!-- Progress & Voice Controls -->
+                <div class="w-full flex justify-between items-center text-sm">
+                    <span id="card-progress" class="font-semibold text-slate-500 bg-slate-100 px-3.5 py-1 rounded-full text-xs border border-slate-200">
+                        進度 0 / 0
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="speakCurrentSentence()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 border border-indigo-200/60 active:scale-95">
+                            <i class="fa-solid fa-volume-high"></i> 朗讀句子 (Space)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive Card -->
+                <div class="my-6 w-full max-w-xl h-64 sm:h-72 perspective-1000 cursor-pointer" onclick="toggleCardFlip()">
+                    <div id="flashcard" class="relative w-full h-full duration-500 transform-style-3d shadow-md hover:shadow-xl rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/40 via-white to-slate-50 flex items-center justify-center p-8 text-center transition-all">
+                        
+                        <!-- Front View -->
+                        <div class="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-6">
+                            <span class="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-3 bg-indigo-100/70 px-3 py-1 rounded-full">Random Sentence</span>
+                            <h2 id="card-text-front" class="text-2xl sm:text-3xl font-extrabold text-slate-800 leading-snug max-w-full break-words">
+                                Loading...
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-6 flex items-center gap-1">
+                                <i class="fa-solid fa-hand-pointer"></i> 點擊卡片翻轉查看資訊
+                            </p>
+                        </div>
+
+                        <!-- Back View -->
+                        <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 bg-indigo-600 text-white rounded-2xl shadow-inner">
+                            <span class="text-xs font-semibold text-indigo-200 uppercase tracking-widest mb-2">Shuffle Details</span>
+                            <h3 id="card-text-back" class="text-xl font-medium leading-snug">
+                                順序編號資訊
+                            </h3>
+                            <p class="text-xs text-indigo-200 mt-4">再次點擊卡片可翻回正面</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Controls Navigation -->
+                <div class="w-full flex flex-wrap justify-center items-center gap-3">
+                    <button onclick="prevSentence()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 active:bg-slate-200 font-medium text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-left"></i> 上一句
+                    </button>
+                    <button onclick="reshuffle()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-white font-medium text-sm transition shadow flex items-center gap-2">
+                        <i class="fa-solid fa-shuffle"></i> 重新清洗洗牌
+                    </button>
+                    <button onclick="nextSentence()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-medium text-sm transition shadow-md flex items-center gap-2">
+                        下一句 <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Full List Mode -->
+            <div id="list-view" class="hidden flex-col bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">打亂後的完整句子列表</h2>
+                        <p class="text-xs text-slate-500">採用 Fisher-Yates 演算法，保證句子完全隨機出現且零重複</p>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button onclick="reshuffle()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-shuffle"></i> 重新打亂
+                        </button>
+                        <button onclick="copyListToClipboard()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-copy"></i> 複製全部句子
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sentence Table -->
+                <div class="overflow-x-auto max-h-[500px] overflow-y-auto border border-slate-200 rounded-xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs font-bold uppercase sticky top-0 border-b border-slate-200">
+                                <th class="py-3 px-4 w-14 text-center">#</th>
+                                <th class="py-3 px-4">隨機排列出的句子內容</th>
+                                <th class="py-3 px-4 text-right w-24">朗讀</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sentence-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- JS Inject Table Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Toast Notification Container -->
+            <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-3 z-50">
+                <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+                <span id="toast-msg">提示訊息</span>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+        <p>英語單句隨機抽取閱讀系統 &copy; 2026 - Random Non-Repeating Sentence Player</p>
+    </footer>
+
+    <script>
+        // Exact Target Sentences Provided
+        const PRELOADED_SENTENCES = [
+            "Let's go here.",
+            "OK. Let’s book the tickets.",
+            "What day is today?",
+            "It's Friday.",
+            "Friday. Done! Let's go.",
+            "It's awesome.",
+            "Hola.",
+            "Hola.",
+            "Let's go watch football.",
+            "Good idea!",
+            "Is it Wednesday today?",
+            "No, it isn’t. It’s Friday.",
+            "TGIF. There's a football game today.",
+            "Have A good time.",
+            "Thank you.",
+            "Big G, little O. Go! Go! Go!",
+            "Good job."
+        ];
+
+        // Application State
+        let originalSentences = [...PRELOADED_SENTENCES];
+        let shuffledSentences = [];
+        let currentIndex = 0;
+        let isFlipped = false;
+        let speechRate = 1.0;
+
+        // Initialize App on Window Load
+        window.onload = function () {
+            document.getElementById('sentence-input').value = originalSentences.join('\n');
+            reshuffle();
+
+            // Register global keydown listener for keyboard controls
+            document.addEventListener('keydown', function(e) {
+                if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') return;
+                
+                if (e.key === 'ArrowRight') nextSentence();
+                if (e.key === 'ArrowLeft') prevSentence();
+                if (e.key === ' ') {
+                    e.preventDefault();
+                    speakCurrentSentence();
+                }
+            });
+        };
+
+        /**
+         * Fisher-Yates Shuffle Algorithm
+         * Guarantees non-repeating, unbiased random sequence.
+         */
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Apply Custom Input Text Area Changes
+        function applyCustomSentences() {
+            const rawText = document.getElementById('sentence-input').value;
+            const lines = rawText
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+
+            if (lines.length === 0) {
+                showToast("請輸入至少一個句子！");
+                return;
+            }
+
+            originalSentences = lines;
+            reshuffle();
+            showToast(`已成功更新 ${originalSentences.length} 個句子並隨機清洗！`);
+        }
+
+        // Reshuffle sentences
+        function reshuffle() {
+            if (originalSentences.length === 0) return;
+            shuffledSentences = shuffleArray(originalSentences);
+            currentIndex = 0;
+            
+            resetCardFlipState();
+            updateCardDisplay();
+            renderTableList();
+            updateStats();
+        }
+
+        // Update Card View
+        function updateCardDisplay() {
+            const frontText = document.getElementById('card-text-front');
+            const backText = document.getElementById('card-text-back');
+            const progressText = document.getElementById('card-progress');
+
+            if (shuffledSentences.length > 0) {
+                frontText.innerText = shuffledSentences[currentIndex];
+                backText.innerText = `隨機索引：第 ${currentIndex + 1} / ${shuffledSentences.length} 句`;
+                progressText.innerText = `進度 ${currentIndex + 1} / ${shuffledSentences.length}`;
+            } else {
+                frontText.innerText = "目前沒有句子";
+                backText.innerText = "-";
+                progressText.innerText = "0 / 0";
+            }
+        }
+
+        // Navigation
+        function nextSentence() {
+            if (shuffledSentences.length === 0) return;
+            if (currentIndex < shuffledSentences.length - 1) {
+                currentIndex++;
+                resetCardFlipState();
+                updateCardDisplay();
+            } else {
+                showToast("已完成所有句子，已為您自動重新清洗！");
+                reshuffle();
+            }
+        }
+
+        function prevSentence() {
+            if (shuffledSentences.length === 0) return;
+            if (currentIndex > 0) {
+                currentIndex--;
+                resetCardFlipState();
+                updateCardDisplay();
+            } else {
+                showToast("這是第一句！");
+            }
+        }
+
+        // Card Flip Logic
+        function toggleCardFlip() {
+            const card = document.getElementById('flashcard');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                card.classList.add('rotate-y-180');
+            } else {
+                card.classList.remove('rotate-y-180');
+            }
+        }
+
+        function resetCardFlipState() {
+            const card = document.getElementById('flashcard');
+            isFlipped = false;
+            card.classList.remove('rotate-y-180');
+        }
+
+        // Render Table List View
+        function renderTableList() {
+            const tbody = document.getElementById('sentence-table-body');
+            tbody.innerHTML = '';
+
+            shuffledSentences.forEach((sentence, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-xs text-center text-slate-400 font-bold">${index + 1}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800 text-base leading-relaxed">${escapeHtml(sentence)}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="speakText('${escapeJsString(sentence)}')" class="p-2 text-slate-400 hover:text-indigo-600 rounded-lg transition" title="朗讀句子">
+                            <i class="fa-solid fa-volume-high text-base"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Update Statistics Tag
+        function updateStats() {
+            document.getElementById('sentence-count-tag').innerText = `${shuffledSentences.length} 個句子`;
+        }
+
+        // Switch View Modes
+        function switchView(mode) {
+            const cardView = document.getElementById('card-view');
+            const listView = document.getElementById('list-view');
+            const cardBtn = document.getElementById('mode-card-btn');
+            const listBtn = document.getElementById('mode-list-btn');
+
+            if (mode === 'card') {
+                cardView.classList.remove('hidden');
+                cardView.classList.add('flex');
+                listView.classList.add('hidden');
+                listView.classList.remove('flex');
+
+                cardBtn.className = "px-4 py-1.5 rounded-lg bg-white text-indigo-700 font-semibold text-sm transition shadow flex items-center gap-2";
+                listBtn.className = "px-4 py-1.5 rounded-lg text-indigo-100 hover:text-white hover:bg-indigo-600/50 font-medium text-sm transition flex items-center gap-2";
+            } else {
+                cardView.classList.add('hidden');
+                cardView.classList.remove('flex');
+                listView.classList.remove('hidden');
+                listView.classList.add('flex');
+
+                cardBtn.className = "px-4 py-1.5 rounded-lg text-indigo-100 hover:text-white hover:bg-indigo-600/50 font-medium text-sm transition flex items-center gap-2";
+                listBtn.className = "px-4 py-1.5 rounded-lg bg-white text-indigo-700 font-semibold text-sm transition shadow flex items-center gap-2";
+            }
+        }
+
+        // Speech Synthesis Functions
+        function updateSpeechRate(val) {
+            speechRate = parseFloat(val);
+            document.getElementById('rate-value').innerText = `${speechRate.toFixed(1)}x`;
+        }
+
+        function speakCurrentSentence() {
+            if (shuffledSentences.length > 0) {
+                speakText(shuffledSentences[currentIndex]);
+            }
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = speechRate;
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast("您的瀏覽器不支援語音朗讀功能");
+            }
+        }
+
+        // Copy Full List to Clipboard
+        function copyListToClipboard() {
+            if (shuffledSentences.length === 0) return;
+            const textToCopy = shuffledSentences.map((s, i) => `${i + 1}. ${s}`).join('\n');
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("已成功複製打亂後的完整句子列表！");
+            } catch (err) {
+                showToast("複製失敗，請手動複製");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Notification Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = message;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2500);
+        }
+
+        // Sanitization helpers
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, function (m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+
+        function escapeJsString(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+    </script>
+</body>
+</html>
