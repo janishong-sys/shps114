@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小學科目英文拼字練習</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-blue-50 to-pink-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 w-full max-w-lg p-6 md:p-8 animate-pop">
+        
+        <!-- Header & Scoreboard -->
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+            <div>
+                <h1 class="text-2xl font-black text-indigo-900 flex items-center gap-2">
+                    🎒 英文科目拼字王
+                </h1>
+                <p class="text-xs text-gray-500 mt-0.5">填入缺少的字母，完成單字拼寫！</p>
+            </div>
+            <div class="flex items-center gap-3 bg-indigo-50 px-4 py-2 rounded-2xl border border-indigo-100">
+                <div class="text-center">
+                    <span class="block text-[10px] font-bold text-indigo-400 uppercase tracking-wider">分數</span>
+                    <span id="score" class="text-lg font-black text-indigo-600">0</span>
+                </div>
+                <div class="h-6 w-[1px] bg-indigo-200"></div>
+                <div class="text-center">
+                    <span class="block text-[10px] font-bold text-indigo-400 uppercase tracking-wider">題數</span>
+                    <span id="streak" class="text-lg font-black text-purple-600">1</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 text-white/10 text-8xl font-black pointer-events-none select-none">ABC</div>
+            <div class="flex items-center justify-between mb-2">
+                <span id="subject-hint" class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">請填入缺少的字母</span>
+                <span id="question-counter" class="text-xs font-medium text-indigo-100">第 1 題</span>
+            </div>
+            
+            <!-- Spelling Display Area -->
+            <div id="word-display" class="my-6 flex flex-wrap items-center justify-center gap-2 md:gap-3 text-3xl md:text-4xl font-extrabold tracking-wide">
+                <!-- Dynamic slots injected via JS -->
+            </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="space-y-4">
+            <div class="flex gap-2">
+                <input type="text" id="user-input" maxlength="1" autocomplete="off" autofocus
+                    class="w-20 text-center uppercase text-2xl font-bold py-3 rounded-2xl border-2 border-indigo-200 focus:border-indigo-600 focus:outline-none bg-indigo-50/50 shadow-inner transition-all placeholder:text-gray-300"
+                    placeholder="?">
+                <button id="submit-btn" onclick="checkAnswer()"
+                    class="flex-1 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold py-3 px-6 rounded-2xl shadow-lg shadow-indigo-200 transition-all text-lg flex items-center justify-center gap-2">
+                    <span>送出答案</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Feedback Message Container -->
+            <div id="feedback" class="h-12 flex items-center justify-center text-center font-bold rounded-xl text-sm transition-all opacity-0"></div>
+
+            <!-- Action / Next Button -->
+            <button id="next-btn" onclick="nextQuestion()" style="display: none;"
+                class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3 px-6 rounded-2xl shadow-lg shadow-emerald-200 transition-all text-lg flex items-center justify-center gap-2">
+                <span>下一題</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Reset Game Button -->
+        <div class="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
+            <span>支援鍵盤 Enter 鍵送出</span>
+            <button onclick="resetGame()" class="hover:text-indigo-600 font-medium underline transition-colors">重新開始遊戲</button>
+        </div>
+    </div>
+
+    <script>
+        // List of school subjects with Chinese translations
+        const subjects = [
+            { en: "art", zh: "美術" },
+            { en: "Chinese", zh: "中文" },
+            { en: "English", zh: "英文" },
+            { en: "math", zh: "數學" },
+            { en: "music", zh: "音樂" },
+            { en: "PE", zh: "體育" },
+            { en: "science", zh: "科學" },
+            { en: "social studies", zh: "社會" }
+        ];
+
+        let currentSubject = {};
+        let missingIndex = -1;
+        let missingChar = '';
+        let score = 0;
+        let questionCount = 1;
+        let isAnswered = false;
+
+        const wordDisplay = document.getElementById('word-display');
+        const userInput = document.getElementById('user-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const feedback = document.getElementById('feedback');
+        const scoreEl = document.getElementById('score');
+        const streakEl = document.getElementById('streak');
+        const subjectHint = document.getElementById('subject-hint');
+        const questionCounter = document.getElementById('question-counter');
+
+        // Initialize game on load
+        window.onload = function() {
+            loadNewQuestion();
+            
+            // Listen to Enter key on input
+            userInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    if (!isAnswered) {
+                        checkAnswer();
+                    } else {
+                        nextQuestion();
+                    }
+                }
+            });
+        };
+
+        function loadNewQuestion() {
+            isAnswered = false;
+            userInput.value = '';
+            userInput.disabled = false;
+            userInput.focus();
+            
+            submitBtn.style.display = 'flex';
+            nextBtn.style.display = 'none';
+            feedback.style.opacity = '0';
+            feedback.className = 'h-12 flex items-center justify-center text-center font-bold rounded-xl text-sm transition-all opacity-0';
+
+            // Pick a random subject
+            const randomIndex = Math.floor(Math.random() * subjects.length);
+            currentSubject = subjects[randomIndex];
+
+            // Pick a random index to hide (ignoring spaces if any, e.g., in "social studies")
+            const word = currentSubject.en;
+            let validIndices = [];
+            for (let i = 0; i < word.length; i++) {
+                if (word[i] !== ' ') {
+                    validIndices.push(i);
+                }
+            }
+
+            const randomValidPos = Math.floor(Math.random() * validIndices.length);
+            missingIndex = validIndices[randomValidPos];
+            missingChar = word[missingIndex];
+
+            questionCounter.innerText = `第 ${questionCount} 題`;
+            subjectHint.innerText = `科目提示：${currentSubject.zh}`;
+
+            renderWord();
+        }
+
+        function renderWord() {
+            wordDisplay.innerHTML = '';
+            const word = currentSubject.en;
+
+            for (let i = 0; i < word.length; i++) {
+                const char = word[i];
+                const span = document.createElement('span');
+
+                if (char === ' ') {
+                    span.className = 'w-4 md:w-6 inline-block';
+                    span.innerHTML = '&nbsp;';
+                } else if (i === missingIndex) {
+                    span.className = 'w-10 h-12 md:w-12 md:h-14 bg-white/20 border-2 border-white/60 rounded-xl flex items-center justify-center text-white shadow-inner animate-pulse';
+                    span.innerText = '_';
+                    span.id = 'missing-slot';
+                } else {
+                    span.className = 'w-10 h-12 md:w-12 md:h-14 bg-white/10 border border-white/30 rounded-xl flex items-center justify-center text-white shadow-sm';
+                    span.innerText = char;
+                }
+                wordDisplay.appendChild(span);
+            }
+        }
+
+        function checkAnswer() {
+            if (isAnswered) return;
+
+            const userVal = userInput.value.trim();
+            if (!userVal) {
+                showFeedback('請先輸入一個字母！', 'bg-amber-100 text-amber-800 border border-amber-200');
+                return;
+            }
+
+            isAnswered = true;
+            userInput.disabled = true;
+
+            // Fill in the correct slot visually
+            const slot = document.getElementById('missing-slot');
+            if (slot) {
+                slot.innerText = missingChar;
+                slot.classList.remove('animate-pulse', 'bg-white/20');
+            }
+
+            // Case-insensitive comparison
+            if (userVal.toLowerCase() === missingChar.toLowerCase()) {
+                score += 10;
+                scoreEl.innerText = score;
+                showFeedback('🎉 答對了！太棒了！', 'bg-emerald-100 text-emerald-800 border border-emerald-200');
+                if (slot) slot.classList.add('bg-emerald-500', 'border-emerald-300');
+            } else {
+                showFeedback(`❌ 答錯囉！正確答案是 "${missingChar}"`, 'bg-rose-100 text-rose-800 border border-rose-200');
+                if (slot) slot.classList.add('bg-rose-500', 'border-rose-300');
+            }
+
+            submitBtn.style.display = 'none';
+            nextBtn.style.display = 'flex';
+            nextBtn.focus();
+        }
+
+        function nextQuestion() {
+            questionCount++;
+            streakEl.innerText = questionCount;
+            loadNewQuestion();
+        }
+
+        function resetGame() {
+            score = 0;
+            questionCount = 1;
+            scoreEl.innerText = score;
+            streakEl.innerText = questionCount;
+            loadNewQuestion();
+        }
+
+        function showFeedback(message, className) {
+            feedback.className = `h-12 flex items-center justify-center text-center font-bold rounded-xl text-sm transition-all opacity-100 px-4 ${className}`;
+            feedback.innerText = message;
+        }
+    </script>
+</body>
+</html>
