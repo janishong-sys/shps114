@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Practice - Do you have class on...?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Quicksand', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 680px;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 12px 32px rgba(14, 116, 144, 0.12);
+      padding: 18px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      border: 4px solid #bae6fd;
+    }
+
+    /* 圖卡區塊 */
+    .card-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .card-area:hover {
+      transform: scale(1.03);
+    }
+
+    .flashcard {
+      width: 150px;
+      height: 150px;
+      border-radius: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      border: 3px solid #000000;
+      position: relative;
+      background: #ffffff;
+      padding: 8px;
+    }
+
+    .flashcard svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .card-hint {
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0284c7;
+      background: #e0f2fe;
+      padding: 2px 10px;
+      border-radius: 10px;
+    }
+
+    /* 對話框區塊 */
+    .sentence-box {
+      width: 100%;
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 14px 18px;
+      border: 2px dashed #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #334155;
+      flex-wrap: wrap;
+    }
+
+    .role {
+      font-family: 'Fredoka One', cursive;
+      font-size: 20px;
+      padding: 2px 8px;
+      border-radius: 8px;
+      min-width: 32px;
+      text-align: center;
+    }
+
+    .role-a {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .role-b {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .blank {
+      display: inline-block;
+      padding: 2px 10px;
+      border-bottom: 3px solid #0284c7;
+      color: #0369a1;
+      font-weight: 700;
+      background: #e0f2fe;
+      border-radius: 6px 6px 0 0;
+    }
+
+    /* B 答案隱藏與顯示風格 */
+    .answer-container {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .answer-hidden {
+      background: #e2e8f0;
+      color: #64748b;
+      padding: 4px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      border: 2px dashed #94a3b8;
+      transition: all 0.2s;
+    }
+
+    .answer-hidden:hover {
+      background: #cbd5e1;
+      color: #334155;
+    }
+
+    .answer-shown {
+      font-size: 20px;
+      font-weight: 700;
+      padding: 2px 12px;
+      border-radius: 8px;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .answer-correct {
+      background: #dcfce7;
+      color: #15803d;
+      border: 2px solid #86efac;
+    }
+
+    .answer-incorrect {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 2px solid #fca5a5;
+    }
+
+    .audio-btn {
+      background: #f1f5f9;
+      border: none;
+      color: #475569;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s;
+      margin-left: auto;
+    }
+
+    .audio-btn:hover {
+      background: #0284c7;
+      color: #ffffff;
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    .match-info {
+      font-size: 13px;
+      font-weight: 700;
+      min-height: 20px;
+      text-align: center;
+    }
+
+    .match-info.correct { color: #16a34a; }
+    .match-info.incorrect { color: #dc2626; }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- 頂端對照圖卡的線稿繪圖 -->
+    <div class="card-area" onclick="revealAnswer()" title="點擊圖卡揭曉答案">
+      <div class="flashcard" id="flashcard"></div>
+      <div class="card-hint"><i class="fa-solid fa-hand-pointer"></i> 點圖卡揭曉答案</div>
+    </div>
+
+    <!-- 句型對話區 -->
+    <div class="sentence-box">
+      <!-- 句型 A -->
+      <div class="line">
+        <span class="role role-a">A</span>
+        <span>Do you have</span>
+        <span class="blank" id="subject-blank">art</span>
+        <span>class on</span>
+        <span class="blank" id="day-blank">Monday</span>
+        <span>?</span>
+        <button class="audio-btn" onclick="speakQuestion()" title="朗讀問句">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+      </div>
+
+      <!-- 句型 B -->
+      <div class="line">
+        <span class="role role-b">B</span>
+        <div class="answer-container">
+          <div id="answer-hidden" class="answer-hidden" onclick="revealAnswer()">
+            <i class="fa-solid fa-lock"></i> 點擊揭曉答案
+          </div>
+          <div id="answer-shown" class="answer-shown" style="display: none;"></div>
+        </div>
+        <button class="audio-btn" id="speak-answer-btn" onclick="speakAnswer()" style="display: none;" title="朗讀答句">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 匹配說明提示 -->
+    <div class="match-info" id="match-info"></div>
+
+    <!-- 換下一題按鈕 -->
+    <button class="action-btn" onclick="generateQuestion()">
+      <i class="fa-solid fa-rotate-right"></i> 下一題 (Next)
+    </button>
+  </div>
+
+  <script>
+    // 8 個科目的完整向量黑白線稿，完全還原您提供的圖片
+    const subjects = [
+      {
+        name: 'Chinese',
+        svg: `<svg viewBox="0 0 100 120" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="10" y="10" width="80" height="100" rx="2" fill="#ffffff"/>
+          <path d="M10 40 Q 50 20 90 28"/>
+          <text x="50" y="65" font-family="'SimSun', 'PMingLiU', serif" font-weight="bold" font-size="22" text-anchor="middle" fill="#000000" stroke="none">國語</text>
+          <path d="M10 80 Q 50 70 90 75"/>
+          <!-- 小船與划船人 -->
+          <path d="M20 100 L70 100 L65 106 L15 106 Z" fill="#ffffff"/>
+          <circle cx="28" cy="85" r="6"/>
+          <path d="M28 91 V99 M24 94 L32 94"/>
+          <path d="M20 83 L35 105" stroke-width="2"/>
+          <circle cx="52" cy="89" r="5"/>
+          <path d="M52 94 V99"/>
+          <!-- 瀑布景 -->
+          <path d="M72 80 V100 M76 80 V100 M80 82 V100 M84 80 V100"/>
+        </svg>`
+      },
+      {
+        name: 'English',
+        svg: `<svg viewBox="0 0 120 80" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="8" width="110" height="64" rx="2" fill="#ffffff"/>
+          <line x1="5" y1="72" x2="115" y2="72" stroke-width="3"/>
+          <rect x="12" y="64" width="12" height="6" fill="#ffffff"/>
+          <text x="22" y="44" font-family="'Quicksand', sans-serif" font-weight="bold" font-size="16" fill="#000000" stroke="none">apple  ball</text>
+          <!-- 老師繪圖 -->
+          <circle cx="98" cy="30" r="12"/>
+          <path d="M86 30 C 86 12 110 12 110 32 C 110 48 102 52 102 52"/>
+          <path d="M88 52 L75 48 M75 48 L70 50 M98 52 L105 72 M88 52 L82 72"/>
+        </svg>`
+      },
+      {
+        name: 'science',
+        svg: `<svg viewBox="0 0 80 100" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 顯微鏡 -->
+          <rect x="22" y="90" width="46" height="6" fill="#ffffff"/>
+          <path d="M32 90 L36 76 H52 L56 90"/>
+          <rect x="42" y="68" width="34" height="4" fill="#ffffff"/>
+          <rect x="48" y="45" width="20" height="23"/>
+          <rect x="52" y="38" width="12" height="7"/>
+          <rect x="49" y="10" width="18" height="28" rx="2"/>
+          <rect x="52" y="4" width="12" height="6"/>
+          <path d="M22 28 C 6 42 6 70 36 82" stroke-width="3"/>
+          <circle cx="30" cy="28" r="9"/>
+        </svg>`
+      },
+      {
+        name: 'art',
+        svg: `<svg viewBox="0 0 110 80" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 調色盤 -->
+          <ellipse cx="44" cy="50" rx="32" ry="22" fill="#ffffff"/>
+          <path d="M22 45 Q 26 40 30 45 Q 28 52 22 45"/>
+          <path d="M36 38 Q 42 35 44 40 Q 40 45 36 38"/>
+          <path d="M48 50 Q 56 46 58 52 Q 52 58 48 50"/>
+          <path d="M34 56 Q 40 54 41 58 Q 36 62 34 56"/>
+          <!-- 軟管 -->
+          <path d="M6 20 L28 32 L34 22 L12 10 Z"/>
+          <line x1="8" y1="12" x2="14" y2="23"/>
+          <path d="M30 27 Q 34 38 28 42"/>
+          <!-- 水彩筆 -->
+          <path d="M102 18 L70 58 L62 68 L70 76 L78 68 L106 24 Z"/>
+          <path d="M62 68 Q 58 75 64 80 Q 72 78 70 76"/>
+        </svg>`
+      },
+      {
+        name: 'math',
+        svg: `<svg viewBox="0 0 110 80" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 計算符號紙張 -->
+          <rect x="36" y="10" width="46" height="58" fill="#ffffff"/>
+          <path d="M45 20 H55 M50 15 V25" stroke-width="3"/>
+          <path d="M68 22 H78" stroke-width="3"/>
+          <path d="M44 45 L54 55 M54 45 L44 55" stroke-width="3"/>
+          <path d="M64 48 H76 M70 42 A 1 1 0 0 1 70 44 M70 52 A 1 1 0 0 1 70 54" stroke-width="3"/>
+          <!-- 直尺 -->
+          <path d="M2 62 L42 42 L46 50 L6 70 Z" fill="#ffffff"/>
+          <line x1="12" y1="57" x2="14" y2="61"/>
+          <line x1="18" y1="54" x2="20" y2="58"/>
+          <line x1="24" y1="51" x2="26" y2="55"/>
+          <line x1="30" y1="48" x2="32" y2="52"/>
+          <!-- 圓規 -->
+          <circle cx="98" cy="24" r="3" fill="#000000"/>
+          <path d="M98 27 L76 56 M98 27 L88 72"/>
+          <path d="M76 56 L74 62 L78 60 Z"/>
+        </svg>`
+      },
+      {
+        name: 'music',
+        svg: `<svg viewBox="0 0 110 80" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 直笛 -->
+          <path d="M72 6 L78 12 L20 74 L14 68 Z" fill="#ffffff"/>
+          <path d="M66 12 L72 18"/>
+          <circle cx="58" cy="26" r="1.5" fill="#000000"/>
+          <circle cx="52" cy="32" r="1.5" fill="#000000"/>
+          <circle cx="46" cy="38" r="1.5" fill="#000000"/>
+          <circle cx="40" cy="44" r="1.5" fill="#000000"/>
+          <circle cx="34" cy="50" r="1.5" fill="#000000"/>
+          <!-- 音符 -->
+          <ellipse cx="12" cy="28" rx="5" ry="4" fill="#000000"/>
+          <ellipse cx="22" cy="34" rx="5" ry="4" fill="#000000"/>
+          <path d="M17 28 V12 L27 18 V34" stroke-width="2" fill="none"/>
+          <path d="M17 12 L27 18" stroke-width="4"/>
+          <ellipse cx="94" cy="70" rx="5" ry="4" fill="#000000"/>
+          <path d="M99 70 V52" stroke-width="2"/>
+        </svg>`
+      },
+      {
+        name: 'social studies',
+        svg: `<svg viewBox="0 0 110 80" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 地圖 -->
+          <path d="M8 10 Q 38 18 70 12 L65 70 Q 35 76 5 68 Z" fill="#ffffff"/>
+          <path d="M20 20 Q 32 30 25 50 Q 40 60 45 45 Z" fill="#000000"/>
+          <path d="M48 22 Q 58 20 52 35 Z" fill="#000000"/>
+          <!-- 地球儀 -->
+          <circle cx="88" cy="32" r="18" fill="#ffffff"/>
+          <path d="M76 32 C 76 18 100 18 100 32 C 100 46 76 46 76 32"/>
+          <path d="M88 14 V50 M88 50 V68 M80 68 H96 M72 30 C 72 10 104 10 104 42" stroke-width="2"/>
+          <!-- 指南針 -->
+          <circle cx="20" cy="62" r="10" fill="#ffffff"/>
+          <polygon points="20,54 23,62 20,70 17,62" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+        </svg>`
+      },
+      {
+        name: 'PE',
+        svg: `<svg viewBox="0 0 110 80" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 足球 -->
+          <circle cx="26" cy="52" r="18" fill="#ffffff"/>
+          <polygon points="26,42 32,46 30,53 22,53 20,46" fill="#000000"/>
+          <line x1="26" y1="42" x2="26" y2="34"/>
+          <line x1="32" y1="46" x2="38" y2="42"/>
+          <!-- 籃球 -->
+          <circle cx="52" cy="32" r="16" fill="#ffffff"/>
+          <path d="M36 32 H68 M52 16 V48 M40 22 C 48 30 48 34 40 42 M64 22 C 56 30 56 34 64 42" stroke-width="1.5"/>
+          <!-- 棒球棒與棒球 -->
+          <path d="M96 10 L60 72 A 3 3 0 0 0 65 76 L101 14 Z"/>
+          <circle cx="94" cy="54" r="7" fill="#ffffff"/>
+          <path d="M90 50 C 92 53 92 55 90 58 M98 50 C 96 53 96 55 98 58" stroke-width="1"/>
+        </svg>`
+      }
+    ];
+
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    let currentCardSubject = null;
+    let currentQuestionSubject = null;
+    let currentDay = null;
+    let isCorrectMatch = false;
+
+    function generateQuestion() {
+      currentCardSubject = subjects[Math.floor(Math.random() * subjects.length)];
+      currentQuestionSubject = subjects[Math.floor(Math.random() * subjects.length)];
+      currentDay = days[Math.floor(Math.random() * days.length)];
+
+      isCorrectMatch = (currentCardSubject.name === currentQuestionSubject.name);
+
+      const cardEl = document.getElementById('flashcard');
+      cardEl.innerHTML = currentCardSubject.svg;
+
+      document.getElementById('subject-blank').textContent = currentQuestionSubject.name;
+      document.getElementById('day-blank').textContent = currentDay;
+
+      document.getElementById('answer-hidden').style.display = 'inline-block';
+      const answerShownEl = document.getElementById('answer-shown');
+      answerShownEl.style.display = 'none';
+      answerShownEl.className = 'answer-shown';
+      
+      document.getElementById('speak-answer-btn').style.display = 'none';
+      
+      const matchInfoEl = document.getElementById('match-info');
+      matchInfoEl.textContent = '';
+      matchInfoEl.className = 'match-info';
+    }
+
+    function revealAnswer() {
+      const hiddenEl = document.getElementById('answer-hidden');
+      const shownEl = document.getElementById('answer-shown');
+      const matchInfoEl = document.getElementById('match-info');
+
+      if (hiddenEl.style.display === 'none') return;
+
+      hiddenEl.style.display = 'none';
+      shownEl.style.display = 'inline-block';
+      document.getElementById('speak-answer-btn').style.display = 'flex';
+
+      if (isCorrectMatch) {
+        shownEl.textContent = "Yes, I do.";
+        shownEl.classList.add('answer-correct');
+        matchInfoEl.textContent = `⭕ 圖卡與句型相同 (${currentCardSubject.name})`;
+        matchInfoEl.className = 'match-info correct';
+      } else {
+        shownEl.textContent = "No, I don't.";
+        shownEl.classList.add('answer-incorrect');
+        matchInfoEl.textContent = `❌ 圖卡為 (${currentCardSubject.name}) ≠ 句型為 (${currentQuestionSubject.name})`;
+        matchInfoEl.className = 'match-info incorrect';
+      }
+
+      speakAnswer();
+    }
+
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.85;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function speakQuestion() {
+      const text = `Do you have ${currentQuestionSubject.name} class on ${currentDay}?`;
+      speakText(text);
+    }
+
+    function speakAnswer() {
+      const text = isCorrectMatch ? "Yes, I do." : "No, I don't.";
+      speakText(text);
+    }
+
+    window.onload = generateQuestion;
+  </script>
+</body>
+</html>
