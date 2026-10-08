@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Disappearing Subjects</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fff1f2; /* Soft pastel pink background */
+            /* Cute star/dot background pattern */
+            background-image: 
+                radial-gradient(#fecdd3 2px, transparent 2px),
+                radial-gradient(#fecdd3 2px, transparent 2px);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Card container logic to keep grid stable when items disappear */
+        .card-slot {
+            perspective: 1000px;
+        }
+
+        /* 
+         * Bouncy, smooth transitions for the cards 
+         */
+        .subject-card {
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: center;
+            will-change: transform, opacity;
+        }
+
+        /* 
+         * State applied when a card vanishes
+         * It shrinks to 0 and spins slightly, fading out
+         */
+        .hidden-card {
+            opacity: 0 !important;
+            transform: scale(0) rotate(20deg) !important;
+            pointer-events: none;
+        }
+
+        /* Disable text selection */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center py-10 px-4 no-select">
+
+    <div class="text-center mb-8 relative z-10 w-full max-w-3xl">
+        <h1 class="text-4xl md:text-5xl font-black text-rose-500 mb-3 drop-shadow-sm tracking-wide">
+            Hide & Seek Subjects 🙈
+        </h1>
+        <p class="text-lg md:text-xl text-rose-400 font-bold mb-6">
+            Click the magic button to make 1 or 2 subjects disappear!
+        </p>
+        
+        <!-- Controls Container -->
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+            
+            <!-- Hide 1 or 2 Cards Button -->
+            <button id="hideBtn" class="bg-violet-400 hover:bg-violet-300 text-white font-black py-4 px-8 rounded-full shadow-[0_6px_0_#7c3aed] hover:shadow-[0_4px_0_#7c3aed] active:shadow-[0_0px_0_#7c3aed] transform active:translate-y-[6px] transition-all text-xl ring-4 ring-violet-200 flex items-center justify-center gap-2 w-full sm:w-auto">
+                ✨ Hide Subjects!
+            </button>
+            
+            <!-- Reset / Reshuffle Button -->
+            <button id="resetBtn" class="bg-emerald-400 hover:bg-emerald-300 text-white font-black py-4 px-8 rounded-full shadow-[0_6px_0_#059669] hover:shadow-[0_4px_0_#059669] active:shadow-[0_0px_0_#059669] transform active:translate-y-[6px] transition-all text-xl ring-4 ring-emerald-200 flex items-center justify-center gap-2 w-full sm:w-auto">
+                🔄 Reshuffle & Reset
+            </button>
+
+        </div>
+    </div>
+
+    <div id="cardGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl relative z-10">
+        <!-- JavaScript will randomly inject the cards here -->
+    </div>
+
+    <script>
+        // Array defining our 8 subjects with cute emojis and pastel color styles
+        const subjectsData = [
+            { name: "Art", emoji: "🎨", bg: "bg-red-100", border: "border-red-300", text: "text-red-600" },
+            { name: "Chinese", emoji: "🏮", bg: "bg-orange-100", border: "border-orange-300", text: "text-orange-600" },
+            { name: "English", emoji: "📚", bg: "bg-amber-100", border: "border-amber-300", text: "text-amber-600" },
+            { name: "Math", emoji: "📐", bg: "bg-lime-100", border: "border-lime-300", text: "text-lime-700" },
+            { name: "Music", emoji: "🎵", bg: "bg-cyan-100", border: "border-cyan-300", text: "text-cyan-600" },
+            { name: "PE", emoji: "⚽", bg: "bg-blue-100", border: "border-blue-300", text: "text-blue-600" },
+            { name: "Science", emoji: "🧪", bg: "bg-indigo-100", border: "border-indigo-300", text: "text-indigo-600" },
+            { name: "Social Studies", emoji: "🌍", bg: "bg-purple-100", border: "border-purple-300", text: "text-purple-600" }
+        ];
+
+        // DOM Elements
+        const grid = document.getElementById('cardGrid');
+        const hideBtn = document.getElementById('hideBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Fisher-Yates shuffle algorithm to guarantee random placement every time
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function renderCards() {
+            // Clear existing grid
+            grid.innerHTML = '';
+            
+            // Get a freshly randomized array of the subjects
+            const shuffledSubjects = shuffleArray(subjectsData);
+            
+            // Create and append each card
+            shuffledSubjects.forEach((subject) => {
+                // We wrap the card in a 'card-slot' so the grid layout doesn't collapse
+                // when the inner card shrinks to scale(0)
+                const slot = document.createElement('div');
+                slot.className = 'card-slot aspect-square';
+                
+                const card = document.createElement('div');
+                card.className = `subject-card flex flex-col items-center justify-center h-full w-full p-4 rounded-3xl border-4 ${subject.bg} ${subject.border} shadow-md`;
+                
+                card.innerHTML = `
+                    <div class="text-5xl md:text-7xl mb-3 drop-shadow-sm transform transition-transform hover:scale-110 duration-200">
+                        ${subject.emoji}
+                    </div>
+                    <div class="font-bold text-lg md:text-2xl ${subject.text} tracking-wide text-center leading-tight">
+                        ${subject.name}
+                    </div>
+                `;
+                
+                slot.appendChild(card);
+                grid.appendChild(slot);
+            });
+            
+            // Reset the "Hide" button text and state
+            hideBtn.innerHTML = "✨ Hide Subjects!";
+            hideBtn.disabled = false;
+            hideBtn.classList.replace('bg-gray-400', 'bg-violet-400');
+            hideBtn.classList.replace('hover:bg-gray-400', 'hover:bg-violet-300');
+            hideBtn.classList.replace('ring-gray-200', 'ring-violet-200');
+            hideBtn.classList.replace('shadow-[0_6px_0_#9ca3af]', 'shadow-[0_6px_0_#7c3aed]');
+            hideBtn.classList.replace('hover:shadow-[0_4px_0_#9ca3af]', 'hover:shadow-[0_4px_0_#7c3aed]');
+            hideBtn.classList.replace('active:shadow-[0_0px_0_#9ca3af]', 'active:shadow-[0_0px_0_#7c3aed]');
+        }
+
+        hideBtn.addEventListener('click', () => {
+            // Find all cards that are currently visible (do not have 'hidden-card' class)
+            const visibleCards = Array.from(document.querySelectorAll('.subject-card:not(.hidden-card)'));
+            
+            if (visibleCards.length > 0) {
+                // Determine whether to hide 1 or 2 cards randomly.
+                // If only 1 card is left, we can only hide 1.
+                const cardsToHideCount = Math.min(Math.floor(Math.random() * 2) + 1, visibleCards.length);
+                
+                // Randomly pick the cards to hide from the visible ones
+                for (let i = 0; i < cardsToHideCount; i++) {
+                    const randomIndex = Math.floor(Math.random() * visibleCards.length);
+                    const cardToHide = visibleCards[randomIndex];
+                    
+                    // Add animation class
+                    cardToHide.classList.add('hidden-card');
+                    
+                    // Remove from our temporary array so we don't try to hide it twice in this loop
+                    visibleCards.splice(randomIndex, 1);
+                }
+                
+                // Check if all cards are now gone
+                if (visibleCards.length === 0) {
+                    hideBtn.innerHTML = "All Gone! 👻";
+                    // Disable the button visually
+                    hideBtn.disabled = true;
+                    hideBtn.classList.replace('bg-violet-400', 'bg-gray-400');
+                    hideBtn.classList.replace('hover:bg-violet-300', 'hover:bg-gray-400');
+                    hideBtn.classList.replace('ring-violet-200', 'ring-gray-200');
+                    hideBtn.classList.replace('shadow-[0_6px_0_#7c3aed]', 'shadow-[0_6px_0_#9ca3af]');
+                    hideBtn.classList.replace('hover:shadow-[0_4px_0_#7c3aed]', 'shadow-[0_6px_0_#9ca3af]');
+                    hideBtn.classList.replace('active:shadow-[0_0px_0_#7c3aed]', 'active:shadow-[0_0px_0_#9ca3af]');
+                }
+            }
+        });
+
+        // Hitting Reset triggers a full reshuffle and re-render
+        resetBtn.addEventListener('click', () => {
+            renderCards();
+        });
+
+        // Build the initial board
+        renderCards();
+
+    </script>
+</body>
+</html>
